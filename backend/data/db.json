@@ -1,0 +1,94 @@
+{
+  "users": [
+    {
+      "id": 1768012416467,
+      "username": "test_admin",
+      "password": "$2a$10$RJ07YQFtAscqG7MefA6Yr.rvFczFyGuWcA30vg0SHHdC2/zAjmVzO",
+      "role": "organizer"
+    },
+    {
+      "id": 1768026918266,
+      "username": "admin",
+      "password": "$2a$10$wNAQGqsAEYZl1OdpPfnDB.dBGQL7flfxJPRz4ygcNg5.vHRsxB8oO",
+      "role": "admin",
+      "active": true,
+      "email": "admin@event.com"
+    },
+    {
+      "id": 1768027360796,
+      "username": "dave",
+      "password": "$2a$10$Fg/jNCz0qiMn2u/1s5boH.a/Gdm69r2NYsD1oaGjcMLoxxzW4FSHS",
+      "role": "organizer",
+      "active": true
+    },
+    {
+      "id": 1768045512056,
+      "username": "organizer@event.com",
+      "password": "$2a$10$TQna.0NXhzmBAyo2YW/WU.MsZCHNKUAwEwaXf9zfmVGoN5HIonQLq",
+      "role": "organizer",
+      "active": true
+    }
+  ],
+  "events": [
+    {
+      "id": "evt-1",
+      "title": "Community Tech Meetup",
+      "description": "An evening of talks and networking.",
+      "date": "2026-03-12T18:00:00Z",
+      "location": "Community Hall",
+      "capacity": 100,
+      "attendeesCount": 2
+    },
+    {
+      "id": "evt-1768028606254",
+      "title": "niggas in paris",
+      "description": "dasda",
+      "date": "2026-01-10T07:03:00.000Z",
+      "location": "paris",
+      "capacity": 50,
+      "status": "upcoming",
+      "attendeesCount": 1
+    }
+  ],
+  "tickets": [
+    {
+      "id": "5994281c-8af3-4005-a79b-7e49da449f82",
+      "eventId": "evt-1",
+      "name": "Alice Example",
+      "email": "alice+1768012416781@example.com",
+      "company": "ACME",
+      "status": "issued",
+      "createdAt": "2026-01-10T02:33:36.230Z"
+    },
+    {
+      "id": "7b5a9051-6253-4a41-a900-18374e453d02",
+      "eventId": "evt-1",
+      "name": "Alice Example",
+      "email": "alice+1768012507307@example.com",
+      "company": "ACME",
+      "status": "checked-in",
+      "createdAt": "2026-01-10T02:35:07.169Z",
+      "checkedInAt": "2026-01-10T02:35:07.202Z"
+    },
+    {
+      "id": "97fdcf63-2ea1-4392-a065-1629c4dc487a",
+      "eventId": "evt-1768028606254",
+      "attendeeId": 1768043617626,
+      "eventTitle": "niggas in paris",
+      "name": "dadasd",
+      "email": "dave@gmail.com",
+      "company": "dsadasdads",
+      "status": "issued",
+      "createdAt": "2026-01-10T11:14:04.707Z"
+    }
+  ],
+  "attendees": [
+    {
+      "id": 1768043617626,
+      "name": "dadasd",
+      "email": "dave@gmail.com",
+      "company": "dsada",
+      "password": "$2a$10$oUV.F2ZateTT0F0ogJOnae86fzuLh7VVKS6y10haKko9ICTWepwSm"
+    }
+  ]
+}
