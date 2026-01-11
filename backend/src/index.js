@@ -10,6 +10,14 @@ const authRoute = require('./routes/auth');
 const adminRoute = require('./routes/admin');
 const reportsRoute = require('./routes/reports');
 const announcementsRoute = require('./routes/announcements');
+const swaggerUi = require('swagger-ui-express')
+const fs = require('fs')
+let swaggerSpec = null
+try{
+	swaggerSpec = JSON.parse(fs.readFileSync(require('path').join(__dirname, '..', 'swagger.json'), 'utf8'))
+}catch(e){
+	console.warn('Swagger spec not found or invalid:', e.message)
+}
 
 const app = express();
 app.use(cors());
@@ -22,6 +30,10 @@ app.use('/api/auth', authRoute);
 app.use('/api/admin', adminRoute);
 app.use('/api/reports', reportsRoute);
 app.use('/api/announcements', announcementsRoute);
+
+if (swaggerSpec) {
+	app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+}
 
 const port = process.env.PORT || 4000;
 

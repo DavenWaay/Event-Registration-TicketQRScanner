@@ -22,7 +22,7 @@ async function downloadImage(url, filename = 'ticket-qr.png'){
     a.remove()
     URL.revokeObjectURL(objectUrl)
   }catch(err){
-    alert('Failed to download QR')
+    await alertModal('Failed to download QR')
   }
 }
 
@@ -678,31 +678,31 @@ function ManageUsersSection(){
       const res = await axios.get('http://localhost:4000/api/admin/users')
       setUsers(res.data)
     }catch(err){
-      alert('Failed to load users')
+      await alertModal('Failed to load users')
     }
   }
 
   async function createUser(){
-    if (!username || !password) return alert('username and password required')
+    if (!username || !password) return await alertModal('username and password required')
     try{
       await axios.post('http://localhost:4000/api/admin/users', { username, password, role })
       setUsername(''); setPassword(''); setRole('organizer')
       fetchUsers()
-    }catch(err){ alert('Create failed') }
+    }catch(err){ await alertModal('Create failed') }
   }
 
   async function toggleActive(u){
     try{
       await axios.patch(`http://localhost:4000/api/admin/users/${u.id}`, { active: !u.active })
       fetchUsers()
-    }catch(err){ alert('Update failed') }
+    }catch(err){ await alertModal('Update failed') }
   }
 
   async function changeRole(u, newRole){
     try{
       await axios.patch(`http://localhost:4000/api/admin/users/${u.id}`, { role: newRole })
       fetchUsers()
-    }catch(err){ alert('Update failed') }
+    }catch(err){ await alertModal('Update failed') }
   }
 
   return (
@@ -837,19 +837,19 @@ function EventFormModal({ event, onClose }){
 
   async function handleSave(){
     if (!formData.title || !formData.date || !formData.location) {
-      return alert('Title, date, and location are required')
+      return await alertModal('Title, date, and location are required')
     }
     try{
       if (isEdit) {
         await axios.put(`http://localhost:4000/api/events/${event.id}`, formData)
-        alert('Event updated')
+        await alertModal('Event updated')
       } else {
         await axios.post('http://localhost:4000/api/events', formData)
-        alert('Event created')
+        await alertModal('Event created')
       }
       onClose()
     }catch(err){
-      alert('Save failed: ' + (err?.response?.data?.message || err.message))
+      await alertModal('Save failed: ' + (err?.response?.data?.message || err.message))
     }
   }
 
@@ -857,10 +857,10 @@ function EventFormModal({ event, onClose }){
     if (!(await confirmModal('Delete this event? This cannot be undone.'))) return
     try{
       await axios.delete(`http://localhost:4000/api/events/${event.id}`)
-      alert('Event deleted')
+      await alertModal('Event deleted')
       onClose()
     }catch(err){
-      alert('Delete failed')
+      await alertModal('Delete failed')
     }
   }
 
@@ -1027,7 +1027,7 @@ function ReportsSection(){
       link.click()
       link.remove()
     }catch(err){
-      alert('Export failed')
+      await alertModal('Export failed')
     }
   }
 
@@ -1043,7 +1043,7 @@ function ReportsSection(){
       link.remove()
       window.URL.revokeObjectURL(url)
     }catch(err){
-      alert('PDF export failed: ' + (err.response?.data?.message || err.message || 'Unknown error'))
+      await alertModal('PDF export failed: ' + (err.response?.data?.message || err.message || 'Unknown error'))
     }
   }
 
@@ -1136,14 +1136,14 @@ function AdminLogin({ onLogin }){
       const { token, role } = res.data
       
       if (role !== 'admin') {
-        alert('Access denied. Admin role required.')
+        await alertModal('Access denied. Admin role required.')
         return
       }
       
       localStorage.setItem('token', token)
       localStorage.setItem('userRole', role)
       onLogin && onLogin(role)
-    }catch(err){ alert(err?.response?.data?.message || 'Login failed') }
+    }catch(err){ await alertModal(err?.response?.data?.message || 'Login failed') }
   }
 
   return (

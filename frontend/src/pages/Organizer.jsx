@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
+import alertModal from '../utils/alert'
 import { Html5Qrcode } from 'html5-qrcode'
 
 // helper to set auth header if token present
@@ -36,19 +37,19 @@ export default function Organizer(){
     axios.get(`http://localhost:4000/api/registrations/${eventId}`)
       .then(r=>setAttendees(r.data))
       .catch(err=>{
-        if (err?.response?.status === 401 || err?.response?.status === 403) {
+          if (err?.response?.status === 401 || err?.response?.status === 403) {
           localStorage.removeItem('token')
           localStorage.removeItem('userRole')
           setIsLoggedIn(false)
           setUserRole(null)
-          alert('Session expired. Please login again.')
+          await alertModal('Session expired. Please login again.')
         }
         setAttendees([])
       })
   }
 
   async function startScanner(){
-    if (!selected) return alert('Select an event first')
+    if (!selected) return await alertModal('Select an event first')
     const readerId = 'qr-reader'
     const html5QrCode = new Html5Qrcode(readerId)
     scannerRef.current = html5QrCode
@@ -57,15 +58,17 @@ export default function Organizer(){
       await html5QrCode.start({ facingMode: 'environment' }, { fps: 10, qrbox: 250 }, async (decodedText, decodedResult) => {
         // decodedText should be ticketId
         try{
-          const res = await axios.post('http://localhost:4000/api/verify', { ticketId: decodedText })
-          alert('Checked-in: ' + res.data.ticket.id)
+          const token = localStorage.getItem('token')
+          const headers = token ? { Authorization: `Bearer ${token}` } : {}
+          const res = await axios.post('http://localhost:4000/api/verify', { ticketId: (decodedText || '').trim() }, { headers })
+          await alertModal('Checked-in: ' + res.data.ticket.id)
           fetchAttendees(selected.id)
         }catch(err){
-          alert(err?.response?.data?.message || 'Verify failed')
+          await alertModal(err?.response?.data?.message || 'Verify failed')
         }
       })
     }catch(err){
-      alert('Camera/start failed: ' + err.message)
+      await alertModal('Camera/start failed: ' + err.message)
       setScanning(false)
     }
   }
@@ -156,7 +159,7 @@ function Login({ onLogin }){
       const { token, role } = res.data
       
       if (role !== 'organizer' && role !== 'admin') {
-        alert('Access denied. This page requires organizer or admin role.')
+        await alertModal('Access denied. This page requires organizer or admin role.')
         return
       }
       
@@ -164,7 +167,7 @@ function Login({ onLogin }){
       localStorage.setItem('userRole', role)
       onLogin && onLogin(role)
     }catch(err){
-      alert(err?.response?.data?.message || 'Login failed')
+      await alertModal(err?.response?.data?.message || 'Login failed')
     }
   }
 

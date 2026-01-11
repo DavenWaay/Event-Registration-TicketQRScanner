@@ -238,10 +238,10 @@ function EventDetailsModal({ event, onClose }){
     if (!(await confirmModal('Delete this event? This cannot be undone.'))) return
     try{
       await axios.delete('http://localhost:4000/api/events/' + event.id)
-      alert('Event deleted')
+      await alertModal('Event deleted')
       onClose()
     }catch(err){
-      alert('Delete failed: ' + (err && err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message))
+      await alertModal('Delete failed: ' + (err && err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message))
     }
   }
 
@@ -678,7 +678,7 @@ function ScannerSection(){
         ()=>{}
       )
     }catch(err){
-      alert('Failed to start camera: ' + err.message)
+      await alertModal('Failed to start camera: ' + err.message)
     }
   }
 
@@ -691,13 +691,15 @@ function ScannerSection(){
   async function onScanSuccess(decodedText){
     if (!selectedEvent) return
     setLastScan(`Scanned: ${decodedText.slice(0,20)}...`)
-    try{
-      await axios.post('http://localhost:4000/api/verify', { ticketId: decodedText })
-      setLastScan('✓ Check-in successful!')
-      loadAttendees(selectedEvent.id)
-    }catch(err){
-      setLastScan('✗ Check-in failed: ' + (err.response?.data?.message || 'Unknown error'))
-    }
+      try{
+        const token = localStorage.getItem('token')
+        const headers = token ? { Authorization: `Bearer ${token}` } : {}
+        await axios.post('http://localhost:4000/api/verify', { ticketId: (decodedText || '').trim() }, { headers })
+        setLastScan('✓ Check-in successful!')
+        loadAttendees(selectedEvent.id)
+      }catch(err){
+        setLastScan('✗ Check-in failed: ' + (err.response?.data?.message || 'Unknown error'))
+      }
   }
 
   const filteredEvents = events.filter(e=> 
@@ -883,7 +885,7 @@ function ExportSection(){
       link.click()
       link.remove()
     }catch(err){
-      alert('Export failed')
+      await alertModal('Export failed')
     }
   }
 
@@ -899,7 +901,7 @@ function ExportSection(){
       link.remove()
       window.URL.revokeObjectURL(url)
     }catch(err){
-      alert('PDF export failed: ' + (err.response?.data?.message || err.message || 'Unknown error'))
+      await alertModal('PDF export failed: ' + (err.response?.data?.message || err.message || 'Unknown error'))
     }
   }
 
@@ -1296,14 +1298,14 @@ function OrganizerLogin({ onLogin }){
       const { token, role } = res.data
       
       if (role !== 'organizer' && role !== 'admin') {
-        alert('Access denied. Organizer or admin role required.')
+        await alertModal('Access denied. Organizer or admin role required.')
         return
       }
       
       localStorage.setItem('token', token)
       localStorage.setItem('userRole', role)
       onLogin && onLogin(role)
-    }catch(err){ alert(err?.response?.data?.message || 'Login failed') }
+    }catch(err){ await alertModal(err?.response?.data?.message || 'Login failed') }
   }
 
   return (

@@ -53,7 +53,7 @@
       "location": "paris",
       "capacity": 50,
       "status": "upcoming",
-      "attendeesCount": 3
+      "attendeesCount": 4
     },
     {
       "id": "evt-1768055148783",
@@ -204,8 +204,20 @@
       "name": "Daven Waay",
       "email": "waay.daven@gmail.com",
       "company": "DeezCompany",
+      "status": "checked-in",
+      "createdAt": "2026-01-11T03:56:12.103Z",
+      "checkedInAt": "2026-01-11T15:41:53.757Z"
+    },
+    {
+      "id": "55f1520d-fa3c-4985-9a1a-9b88b174ae20",
+      "eventId": "evt-1768028606254",
+      "attendeeId": 1768110824786,
+      "eventTitle": "niggas in paris",
+      "name": "stephen",
+      "email": "davekirito6@gmail.com",
+      "company": "123",
       "status": "issued",
-      "createdAt": "2026-01-11T03:56:12.103Z"
+      "createdAt": "2026-01-11T06:24:23.938Z"
     }
   ],
   "attendees": [
@@ -222,6 +234,13 @@
       "email": "waay.daven@gmail.com",
       "company": "DeezCompany",
       "password": "$2a$10$NyPm4ZBAP1U6pl6ZL7ND.OAVUytiKvwR3iu8CcUdVaACoj4iWG5QO"
+    },
+    {
+      "id": 1768110824786,
+      "name": "stephen",
+      "email": "davekirito6@gmail.com",
+      "company": "123",
+      "password": "$2a$10$97yXEftoeaGmWwJ6ECOkLOOXzoenlesl/PK5DGLib7rRO2bDNBn06"
     }
   ]
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+import alertModal from '../utils/alert'
 
 export default function Landing({ onLogin }){
   const [mode, setMode] = useState('signin') // 'signin' or 'signup'
@@ -95,7 +96,7 @@ function SignInForm({ onLogin }){
       
       onLogin && onLogin(role, user)
     }catch(err){
-      alert(err?.response?.data?.message || 'Login failed')
+      await alertModal(err?.response?.data?.message || 'Login failed')
     }finally{
       setLoading(false)
     }
@@ -190,11 +191,11 @@ function SignUpForm({ onLogin, onSwitchToSignIn }){
     e.preventDefault()
     
     if (password !== confirmPassword) {
-      return alert('Passwords do not match')
+      return await alertModal('Passwords do not match')
     }
     
     if (password.length < 6) {
-      return alert('Password must be at least 6 characters')
+      return await alertModal('Password must be at least 6 characters')
     }
     
     setLoading(true)
@@ -209,10 +210,10 @@ function SignUpForm({ onLogin, onSwitchToSignIn }){
       localStorage.setItem('user', JSON.stringify(user))
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       
-      alert('Account created successfully!')
+      await alertModal('Account created successfully!')
       onLogin && onLogin(role, user)
     }catch(err){
-      alert(err?.response?.data?.message || 'Signup failed')
+      await alertModal(err?.response?.data?.message || 'Signup failed')
     }finally{
       setLoading(false)
     }

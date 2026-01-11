@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import alertModal from '../utils/alert'
 
 function setAuthHeader(){
   const token = localStorage.getItem('token')
@@ -37,34 +38,34 @@ export default function Admin(){
         localStorage.removeItem('userRole')
         setIsLoggedIn(false)
         setUserRole(null)
-        alert('Session expired or unauthorized. Please login again.')
+        await alertModal('Session expired or unauthorized. Please login again.')
       } else {
-        alert(err?.response?.data?.message || 'Failed to load users')
+        await alertModal(err?.response?.data?.message || 'Failed to load users')
       }
     }finally{ setLoading(false) }
   }
 
   async function createUser(){
-    if (!username || !password) return alert('username and password required')
+    if (!username || !password) return await alertModal('username and password required')
     try{
       await axios.post('http://localhost:4000/api/admin/users', { username, password, role })
       setUsername(''); setPassword(''); setRole('organizer')
       fetchUsers()
-    }catch(err){ alert(err?.response?.data?.message || 'Create failed') }
+    }catch(err){ await alertModal(err?.response?.data?.message || 'Create failed') }
   }
 
   async function toggleActive(u){
     try{
       await axios.patch(`http://localhost:4000/api/admin/users/${u.id}`, { active: !u.active })
       fetchUsers()
-    }catch(err){ alert('Update failed') }
+    }catch(err){ await alertModal('Update failed') }
   }
 
   async function changeRole(u, newRole){
     try{
       await axios.patch(`http://localhost:4000/api/admin/users/${u.id}`, { role: newRole })
       fetchUsers()
-    }catch(err){ alert('Update failed') }
+    }catch(err){ await alertModal('Update failed') }
   }
 
   function handleLogin(role){
@@ -144,14 +145,14 @@ function Login({ onLogin, requiredRole }){
       const { token, role } = res.data
       
       if (requiredRole && role !== requiredRole) {
-        alert(`Access denied. This page requires ${requiredRole} role.`)
+        await alertModal(`Access denied. This page requires ${requiredRole} role.`)
         return
       }
       
       localStorage.setItem('token', token)
       localStorage.setItem('userRole', role)
       onLogin && onLogin(role)
-    }catch(err){ alert(err?.response?.data?.message || 'Login failed') }
+    }catch(err){ await alertModal(err?.response?.data?.message || 'Login failed') }
   }
 
   return (
