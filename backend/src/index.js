@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('express').json;
@@ -7,6 +9,7 @@ const verifyRoute = require('./routes/verify');
 const authRoute = require('./routes/auth');
 const adminRoute = require('./routes/admin');
 const reportsRoute = require('./routes/reports');
+const announcementsRoute = require('./routes/announcements');
 
 const app = express();
 app.use(cors());
@@ -18,6 +21,7 @@ app.use('/api/verify', verifyRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/admin', adminRoute);
 app.use('/api/reports', reportsRoute);
+app.use('/api/announcements', announcementsRoute);
 
 const port = process.env.PORT || 4000;
 

@@ -4,6 +4,7 @@ const QRCode = require('qrcode');
 const { readDb, getEvent, getTicketsForEvent, findTicketByEmail, createTicket: dbCreateTicket, getTicketsByAttendee, getAttendee } = require('../db');
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
+const { sendConfirmationEmail, isValidEmail } = require('../services/email');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 
@@ -111,6 +112,11 @@ router.post('/:eventId/register', async (req, res) => {
       return res.status(400).json({ message: 'Name and email required' })
     }
 
+    // Validate email format
+    if (!isValidEmail(finalEmail)) {
+      return res.status(400).json({ message: 'Invalid email format' })
+    }
+
     // Duplicate registration check (same email for same event)
     const existing = findTicketByEmail(eventId, finalEmail);
     if (existing) return res.status(409).json({ message: 'Already registered with this email' });
@@ -132,6 +138,22 @@ router.post('/:eventId/register', async (req, res) => {
     dbCreateTicket(ticket);
     try {
       const qrDataUrl = await QRCode.toDataURL(ticket.id);
+      
+      // Send confirmation email
+      const emailResult = await sendConfirmationEmail({
+        to: finalEmail,
+        name: finalName,
+        eventTitle: ev.title,
+        eventDate: new Date(ev.date).toLocaleString(),
+        eventLocation: ev.location,
+        ticketId: ticket.id,
+        qrDataUrl
+      });
+      
+      if (!emailResult.success) {
+        console.warn('Failed to send confirmation email:', emailResult.reason || emailResult.error);
+      }
+      
       res.status(201).json({ ticket: { ...ticket, qr: qrDataUrl } });
     } catch (err) {
       console.error('QR generation failed', err)

@@ -43,7 +43,7 @@
       "date": "2026-03-12T18:00:00Z",
       "location": "Community Hall",
       "capacity": 99,
-      "attendeesCount": 3
+      "attendeesCount": 4
     },
     {
       "id": "evt-1768028606254",
@@ -53,7 +53,7 @@
       "location": "paris",
       "capacity": 50,
       "status": "upcoming",
-      "attendeesCount": 2
+      "attendeesCount": 3
     },
     {
       "id": "evt-1768055148783",
@@ -63,7 +63,7 @@
       "location": "dyan lang ya",
       "capacity": 20,
       "status": "completed",
-      "attendeesCount": 5
+      "attendeesCount": 6
     }
   ],
   "tickets": [
@@ -173,6 +173,39 @@
       "company": "1234",
       "status": "issued",
       "createdAt": "2026-01-11T02:38:50.639Z"
+    },
+    {
+      "id": "486361ed-4ae1-47a6-b58b-6787131a830f",
+      "eventId": "evt-1768028606254",
+      "attendeeId": 1768103088468,
+      "eventTitle": "niggas in paris",
+      "name": "Daven Waay",
+      "email": "waay.daven@gmail.com",
+      "company": "DeezCompany",
+      "status": "issued",
+      "createdAt": "2026-01-11T03:48:16.753Z"
+    },
+    {
+      "id": "8aea5ad1-40d7-4d64-9929-9f911f79da0f",
+      "eventId": "evt-1768055148783",
+      "attendeeId": null,
+      "eventTitle": "admin creating event",
+      "name": "Daven Waay",
+      "email": "waay.daven@gmail.com",
+      "company": "DeezCompany",
+      "status": "issued",
+      "createdAt": "2026-01-11T03:50:25.580Z"
+    },
+    {
+      "id": "4023b2a6-a1e0-495d-948e-7d9eb267cc7d",
+      "eventId": "evt-1",
+      "attendeeId": 1768103088468,
+      "eventTitle": "Community Tech Meetup",
+      "name": "Daven Waay",
+      "email": "waay.daven@gmail.com",
+      "company": "DeezCompany",
+      "status": "issued",
+      "createdAt": "2026-01-11T03:56:12.103Z"
     }
   ],
   "attendees": [
@@ -182,6 +215,13 @@
       "email": "dave@gmail.com",
       "company": "dsada",
       "password": "$2a$10$oUV.F2ZateTT0F0ogJOnae86fzuLh7VVKS6y10haKko9ICTWepwSm"
+    },
+    {
+      "id": 1768103088468,
+      "name": "Daven Waay",
+      "email": "waay.daven@gmail.com",
+      "company": "DeezCompany",
+      "password": "$2a$10$NyPm4ZBAP1U6pl6ZL7ND.OAVUytiKvwR3iu8CcUdVaACoj4iWG5QO"
     }
   ]
 }

@@ -1033,14 +1033,26 @@ function AnnouncementsSection(){
 
   async function sendAnnouncement(){
     if (!selectedEvent || !subject || !message) {
-      return alert('Event, subject, and message are required')
+      await alertModal('Event, subject, and message are required')
+      return
     }
     
-    alert('Announcement feature coming soon! This will send emails to all registered attendees.')
-    setShowForm(false)
-    setSelectedEvent(null)
-    setSubject('')
-    setMessage('')
+    try {
+      setAuthHeader()
+      const res = await axios.post('http://localhost:4000/api/announcements', {
+        eventId: selectedEvent.id,
+        subject,
+        message
+      })
+      
+      await alertModal(res.data.message || `Announcement sent to ${res.data.recipientCount} attendee(s)`)
+      setShowForm(false)
+      setSelectedEvent(null)
+      setSubject('')
+      setMessage('')
+    } catch (err) {
+      await alertModal(err?.response?.data?.message || 'Failed to send announcement')
+    }
   }
 
   function closeAnnouncementForm(){
