@@ -25,6 +25,12 @@ export default function App(){
       setUser(savedUser ? JSON.parse(savedUser) : null)
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
     }
+    // Listen for logout events from other panels
+    function onLoggedOut(){
+      handleLogout()
+    }
+    window.addEventListener('user-logged-out', onLoggedOut)
+    return ()=> window.removeEventListener('user-logged-out', onLoggedOut)
   }, [])
 
   function handleLogin(role, userData){

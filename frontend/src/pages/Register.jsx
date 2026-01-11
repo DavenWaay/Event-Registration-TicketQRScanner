@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+import alertModal from '../utils/alert'
 
 export default function Register({ event, user, onDone, onCancel }){
   const [name, setName] = useState(user?.name || '')
@@ -8,6 +9,23 @@ export default function Register({ event, user, onDone, onCancel }){
   const [ticket, setTicket] = useState(null)
   const [loading, setLoading] = useState(false)
 
+  async function downloadQR(url, filename = 'ticket-qr.png'){
+    try{
+      const res = await fetch(url)
+      const blob = await res.blob()
+      const a = document.createElement('a')
+      const objectUrl = URL.createObjectURL(blob)
+      a.href = objectUrl
+      a.download = filename
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(objectUrl)
+    }catch(err){
+      await alertModal('Failed to download QR')
+    }
+  }
+
   async function submit(e){
     e.preventDefault();
     setLoading(true)
@@ -15,7 +33,7 @@ export default function Register({ event, user, onDone, onCancel }){
       const res = await axios.post(`http://localhost:4000/api/registrations/${event.id}/register`, { name, email, company })
       setTicket(res.data.ticket)
     }catch(err){
-      alert(err?.response?.data?.message || 'Registration failed')
+      await alertModal(err?.response?.data?.message || 'Registration failed')
     }finally{
       setLoading(false)
     }
@@ -55,7 +73,9 @@ export default function Register({ event, user, onDone, onCancel }){
                 required
                 placeholder="Enter your full name"
                 style={{
-                  width:'100%',
+                  width:'calc(95% - 32px)',
+                  marginLeft:16,
+                  marginRight:16,
                   padding:'12px 16px',
                   fontSize:15,
                   background:'#1a1a1a',
@@ -78,7 +98,9 @@ export default function Register({ event, user, onDone, onCancel }){
                 required
                 placeholder="your.email@example.com"
                 style={{
-                  width:'100%',
+                  width:'calc(95% - 32px)',
+                  marginLeft:16,
+                  marginRight:16,
                   padding:'12px 16px',
                   fontSize:15,
                   background:'#1a1a1a',
@@ -99,7 +121,9 @@ export default function Register({ event, user, onDone, onCancel }){
                 onChange={e=>setCompany(e.target.value)}
                 placeholder="Enter your company name"
                 style={{
-                  width:'100%',
+                  width:'calc(95% - 32px)',
+                  marginLeft:16,
+                  marginRight:16,
                   padding:'12px 16px',
                   fontSize:15,
                   background:'#1a1a1a',
@@ -211,6 +235,9 @@ export default function Register({ event, user, onDone, onCancel }){
             <div style={{textAlign:'center',marginTop:24,padding:20,background:'#fff',borderRadius:12}}>
               <p style={{fontSize:14,color:'#666',margin:'0 0 12px 0'}}>Show this QR code at the event for check-in</p>
               <img alt="Ticket QR Code" src={ticket.qr} style={{maxWidth:240,width:'100%',display:'block',margin:'0 auto'}} />
+              <div style={{marginTop:12}}>
+                <button onClick={()=>downloadQR(ticket.qr, `${(event.title||'ticket').replace(/[^a-z0-9-_]/gi,'_')}-${ticket.id.slice(0,8)}.png`)} style={{padding:'10px 14px',background:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',color:'#fff',border:'none',borderRadius:8,cursor:'pointer',fontWeight:700}}>Download QR</button>
+              </div>
             </div>
           </div>
 

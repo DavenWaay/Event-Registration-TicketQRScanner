@@ -70,6 +70,12 @@ function checkInTicket(id){ const db = readDb(); const t = db.tickets.find(x=>x.
 function findTicketByEmail(eventId, email){ const db = readDb(); return db.tickets.find(t=>t.eventId===eventId && t.email===email) }
 function getTicketsByAttendee(attendeeId){ const db = readDb(); return db.tickets.filter(t=>t.attendeeId===attendeeId) }
 
+function getTicket(id){ const db = readDb(); return db.tickets.find(t=>t.id===id) }
+
+function updateTicket(id, fields){ const db = readDb(); const t = db.tickets.find(x=>x.id===id); if(!t) return null; Object.assign(t, fields); writeDb(db); return t }
+
+function deleteTicket(id){ const db = readDb(); const idx = db.tickets.findIndex(x=>x.id===id); if(idx===-1) return false; const [t] = db.tickets.splice(idx,1); const ev = db.events.find(e=>e.id===t.eventId); if(ev) ev.attendeesCount = Math.max(0, (ev.attendeesCount||0)-1); writeDb(db); return true }
+
 function createUser(username, passwordHash, role='organizer', active=true){ const db = readDb(); const id = Date.now() + Math.floor(Math.random()*1000); const user = { id, username, password: passwordHash, role, active }; db.users.push(user); writeDb(db); return { id: user.id, username: user.username, role: user.role, active: user.active } }
 function findUser(username){ const db = readDb(); return db.users.find(u=>u.username===username) }
 function findUserByEmail(email){ const db = readDb(); return db.users.find(u=>u.email===email) }
@@ -87,4 +93,4 @@ function createAttendee(name, email, company, passwordHash){ const db = readDb()
 function findAttendeeByEmail(email){ const db = readDb(); return db.attendees.find(a=>a.email===email) }
 function getAttendee(id){ const db = readDb(); return db.attendees.find(a=>a.id==id) }
 
-module.exports = { getEvents, getEvent, createEvent, updateEvent, deleteEvent, getTicketsForEvent, getTicket, createTicket, checkInTicket, findTicketByEmail, getTicketsByAttendee, createUser, findUser, findUserByEmail, listUsers, updateUser, createAttendee, findAttendeeByEmail, getAttendee }
+module.exports = { readDb, getEvents, getEvent, createEvent, updateEvent, deleteEvent, getTicketsForEvent, getTicket, createTicket, checkInTicket, findTicketByEmail, getTicketsByAttendee, getTicket, updateTicket, deleteTicket, createUser, findUser, findUserByEmail, listUsers, updateUser, createAttendee, findAttendeeByEmail, getAttendee }

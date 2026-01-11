@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { Html5Qrcode } from 'html5-qrcode'
+import confirmModal from '../utils/confirm'
+import alertModal from '../utils/alert'
 
 function setAuthHeader(){
   const token = localStorage.getItem('token')
@@ -36,6 +38,8 @@ export default function OrganizerPanel(){
     setIsLoggedIn(false)
     setUserRole(null)
     setActiveSection('events')
+    // notify top-level app to update auth state and show Landing
+    try{ window.dispatchEvent(new Event('user-logged-out')) }catch(e){}
   }
 
   if (!isLoggedIn || (userRole !== 'organizer' && userRole !== 'admin')) {
@@ -58,7 +62,7 @@ export default function OrganizerPanel(){
           <SidebarItem label="My Events" active={activeSection==='events'} onClick={()=>setActiveSection('events')} />
           <SidebarItem label="Attendees" active={activeSection==='attendees'} onClick={()=>setActiveSection('attendees')} />
           <SidebarItem label="Check-in Scanner" active={activeSection==='scanner'} onClick={()=>setActiveSection('scanner')} />
-          <SidebarItem label="Export" active={activeSection==='export'} onClick={()=>setActiveSection('export')} />
+          <SidebarItem label="Reports/Export" active={activeSection==='export'} onClick={()=>setActiveSection('export')} />
           <SidebarItem label="Announcements" active={activeSection==='announcements'} onClick={()=>setActiveSection('announcements')} />
         </nav>
         <button onClick={handleLogout} style={{
@@ -118,6 +122,7 @@ function MyEventsSection(){
   const [events, setEvents] = useState([])
   const [showCreate, setShowCreate] = useState(false)
   const [editEvent, setEditEvent] = useState(null)
+  const [viewEvent, setViewEvent] = useState(null)
 
   useEffect(()=>{ fetchEvents() }, [])
 
@@ -174,11 +179,11 @@ function MyEventsSection(){
             <p style={{margin:'4px 0',fontSize:14}}>
               📊 Fill Rate: <span style={{color:'#667eea',fontWeight:600}}>{((ev.attendeesCount||0)/ev.capacity*100).toFixed(1)}%</span>
             </p>
-            <p style={{margin:'4px 0',fontSize:14}}>
-              Status: <strong style={{color:'#667eea'}}>{ev.status || 'upcoming'}</strong>
+            <p style={{margin:'4px 0',fontSize:14,color:'#b0b0b0'}}>
+              Status: <strong style={{color:'#fff'}}>{ev.status || 'upcoming'}</strong>
             </p>
             <div style={{display:'flex',gap:10,marginTop:16}}>
-              <button onClick={()=>setEditEvent(ev)} style={{
+              <button onClick={()=>setViewEvent(ev)} style={{
                 flex:1,
                 padding:'10px',
                 background:'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -188,6 +193,17 @@ function MyEventsSection(){
                 cursor:'pointer',
                 fontSize:14,
                 fontWeight:600
+              }}>View</button>
+              <button onClick={()=>setEditEvent(ev)} style={{
+                flex:1,
+                padding:'10px',
+                background:'#3a3a3a',
+                color:'#e0e0e0',
+                border:'1px solid #505050',
+                borderRadius:8,
+                cursor:'pointer',
+                fontSize:14,
+                fontWeight:500
               }}>Edit</button>
             </div>
           </div>
@@ -198,6 +214,127 @@ function MyEventsSection(){
 
       {showCreate && <EventFormModal onClose={()=>{setShowCreate(false); fetchEvents()}} />}
       {editEvent && <EventFormModal event={editEvent} onClose={()=>{setEditEvent(null); fetchEvents()}} />}
+      {viewEvent && <EventDetailsModal event={viewEvent} onClose={()=>{setViewEvent(null); fetchEvents()}} />}
+    </div>
+  )
+}
+
+function EventDetailsModal({ event, onClose }){
+  const [editing, setEditing] = useState(false)
+  const [formData, setFormData] = useState({...event})
+
+  async function handleSave(){
+    try{
+      await axios.put('http://localhost:4000/api/events/' + event.id, formData)
+      await alertModal('Event updated')
+      setEditing(false)
+      onClose()
+    }catch(err){
+      await alertModal('Update failed: ' + (err && err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message))
+    }
+  }
+
+  async function handleDelete(){
+    if (!(await confirmModal('Delete this event? This cannot be undone.'))) return
+    try{
+      await axios.delete('http://localhost:4000/api/events/' + event.id)
+      alert('Event deleted')
+      onClose()
+    }catch(err){
+      alert('Delete failed: ' + (err && err.response && err.response.data && err.response.data.message ? err.response.data.message : err.message))
+    }
+  }
+
+  const fillPercent = Math.min(100, Math.round(((event.attendeesCount||0)/(event.capacity||1))*100))
+
+  return (
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}}>
+      <div style={{width:'95%',maxWidth:760,maxHeight:'86vh',overflowY:'auto',background:'#121212',borderRadius:12,padding:24,border:'1px solid rgba(255,255,255,0.04)',boxShadow:'0 12px 30px rgba(0,0,0,0.6)',fontFamily:'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial',color:'#e6e6e6'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+          <h2 style={{margin:0,color:'#fff',fontSize:32,fontWeight:800,letterSpacing:0.5}}>Event Details</h2>
+          <button onClick={onClose} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',padding:'8px 16px',borderRadius:8,cursor:'pointer',fontSize:16}}>Close</button>
+        </div>
+
+        {!editing ? (
+          <div style={{color:'#e6e6e6'}}>
+            <h3 style={{margin:'6px 0 12px 0',fontSize:26,fontWeight:800,letterSpacing:0.2}}>{event.title}</h3>
+            <p style={{color:'#bdbdbd',lineHeight:1.6,marginBottom:16}}>{event.description}</p>
+
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,fontSize:14,color:'#cfcfcf'}}>
+              <div style={{padding:6}}>
+                <div style={{fontSize:15,color:'#9aa4ff',marginBottom:6,letterSpacing:0.8,fontWeight:700}}>DATE & TIME</div>
+                <div style={{fontWeight:600}}>{new Date(event.date).toLocaleString()}</div>
+              </div>
+              <div style={{padding:6}}>
+                <div style={{fontSize:15,color:'#9aa4ff',marginBottom:6,letterSpacing:0.8,fontWeight:700}}>LOCATION</div>
+                <div style={{fontWeight:600}}>{event.location}</div>
+              </div>
+            </div>
+
+            <div style={{marginTop:18}}>
+              <div style={{fontSize:15,color:'#9aa4ff',marginBottom:8,letterSpacing:0.8,fontWeight:700}}>ATTENDANCE</div>
+              <div style={{height:12,background:'#0f0f0f',borderRadius:8,overflow:'hidden',border:'1px solid rgba(255,255,255,0.03)'}}>
+                <div style={{height:'100%',background:'linear-gradient(90deg,#667eea,#764ba2)',width:fillPercent + '%'}} />
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:8,color:'#9fb0ff'}}>
+                <div style={{fontSize:15,color:'#7fb0ff'}}>{Math.max(0, (event.capacity || 0) - (event.attendeesCount || 0))} spots remaining</div>
+                <div style={{fontSize:15,color:'#cfcfcf'}}>{event.attendeesCount || 0} / {event.capacity || 0}</div>
+              </div>
+            </div>
+
+            <div style={{display:'flex',gap:12,marginTop:20,alignItems:'center'}}>
+              <button onClick={()=>setEditing(true)} style={{flex:1,padding:'14px 18px',background:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',color:'#fff',border:'none',borderRadius:8,cursor:'pointer',fontWeight:700,fontSize:15}}>Edit</button>
+              <button onClick={handleDelete} style={{padding:'10px 14px',background:'#171717',color:'#ff6b6b',border:'1px solid rgba(255,107,107,0.12)',borderRadius:8,cursor:'pointer',fontWeight:700}}>Delete</button>
+            </div>
+            <div style={{marginTop:12,color:event.status === 'checked-in' ? '#4ade80' : '#9aa4ff',fontWeight:700,fontSize:16}}>{event.status || 'upcoming'}</div>
+          </div>
+        ) : (
+          <div style={{color:'#e6e6e6'}}>
+            <div style={{background:'#161616',padding:16,borderRadius:10,border:'1px solid rgba(255,255,255,0.02)'}}>
+              <div style={{display:'grid',gap:10}}>
+                <div>
+                  <label style={{display:'block',marginBottom:8,color:'#bfc6d8',fontSize:13}}>Title</label>
+                  <input value={formData.title} onChange={e=>setFormData({...formData,title:e.target.value})} style={{width:'100%',padding:'14px 18px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',outline:'none',fontSize:16,marginBottom:2,boxSizing:'border-box'}} />
+                </div>
+                <div>
+                  <label style={{display:'block',marginBottom:8,color:'#bfc6d8',fontSize:13}}>Description</label>
+                  <textarea value={formData.description} onChange={e=>setFormData({...formData,description:e.target.value})} style={{width:'100%',minHeight:120,padding:'14px 18px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',outline:'none',fontSize:16,marginBottom:2,boxSizing:'border-box'}} />
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                  <div>
+                    <label style={{display:'block',marginBottom:6,color:'#bfc6d8',fontSize:13}}>Date</label>
+                    <input type="datetime-local" value={formData.date?.slice(0,16)} onChange={e=>setFormData({...formData,date:new Date(e.target.value).toISOString()})} style={{width:'100%',padding:'12px 16px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',boxSizing:'border-box',fontSize:15}} />
+                  </div>
+                  <div>
+                    <label style={{display:'block',marginBottom:6,color:'#bfc6d8',fontSize:13}}>Location</label>
+                    <input value={formData.location} onChange={e=>setFormData({...formData,location:e.target.value})} style={{width:'100%',padding:'12px 16px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',boxSizing:'border-box',fontSize:15}} />
+                  </div>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                  <div>
+                    <label style={{display:'block',marginBottom:6,color:'#bfc6d8',fontSize:13}}>Capacity</label>
+                    <input type="number" value={formData.capacity} onChange={e=>setFormData({...formData,capacity:parseInt(e.target.value)})} style={{width:'100%',padding:'12px 16px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',boxSizing:'border-box',fontSize:15}} />
+                  </div>
+                  <div>
+                    <label style={{display:'block',marginBottom:6,color:'#bfc6d8',fontSize:13}}>Status</label>
+                    <select value={formData.status || 'upcoming'} onChange={e=>setFormData({...formData,status:e.target.value})} style={{width:'100%',padding:'12px 16px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',boxSizing:'border-box',fontSize:15}}>
+                      <option value="upcoming">Upcoming</option>
+                      <option value="ongoing">Ongoing</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{display:'flex',gap:12,marginTop:16,justifyContent:'flex-end'}}>
+                <button onClick={handleSave} style={{padding:'10px 18px',background:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',color:'#fff',border:'none',borderRadius:8,cursor:'pointer',fontWeight:700}}>Save</button>
+                <button onClick={handleDelete} style={{padding:'10px 18px',background:'#dc3545',color:'#fff',border:'none',borderRadius:8,cursor:'pointer',fontWeight:700}}>Delete</button>
+                <button onClick={onClose} style={{padding:'10px 18px',background:'#2a2a2a',color:'#fff',border:'1px solid rgba(255,255,255,0.03)',borderRadius:8,cursor:'pointer'}}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -209,171 +346,86 @@ function EventFormModal({ event, onClose }){
   })
 
   async function handleSave(){
-    if (!formData.title || !formData.date || !formData.location) {
-      return alert('Title, date, and location are required')
+      if (!formData.title || !formData.date || !formData.location) {
+      await alertModal('Title, date, and location are required')
+      return
     }
     try{
       if (isEdit) {
         await axios.put(`http://localhost:4000/api/events/${event.id}`, formData)
-        alert('Event updated')
+        await alertModal('Event updated')
       } else {
         await axios.post('http://localhost:4000/api/events', formData)
-        alert('Event created')
+        await alertModal('Event created')
       }
       onClose()
     }catch(err){
-      alert('Save failed: ' + (err?.response?.data?.message || err.message))
+      await alertModal('Save failed: ' + (err?.response?.data?.message || err.message))
     }
   }
 
   async function handleDelete(){
-    if (!confirm('Delete this event? This cannot be undone.')) return
+    if (!(await confirmModal('Delete this event? This cannot be undone.'))) return
     try{
       await axios.delete(`http://localhost:4000/api/events/${event.id}`)
-      alert('Event deleted')
+      await alertModal('Event deleted')
       onClose()
     }catch(err){
-      alert('Delete failed')
+      await alertModal('Delete failed')
     }
   }
 
   return (
-    <div style={{
-      position:'fixed',top:0,left:0,right:0,bottom:0,
-      background:'rgba(0,0,0,0.85)',
-      display:'flex',alignItems:'center',justifyContent:'center',
-      zIndex:1000,
-      backdropFilter:'blur(4px)'
-    }}>
-      <div style={{
-        background:'#2d2d2d',
-        border:'1px solid #404040',
-        borderRadius:16,
-        padding:32,
-        width:'90%',
-        maxWidth:600,
-        maxHeight:'80vh',
-        overflowY:'auto',
-        boxShadow:'0 20px 60px rgba(0,0,0,0.5)'
-      }}>
-        <h2 style={{margin:'0 0 24px 0',fontSize:24,color:'#fff'}}>{isEdit ? 'Edit Event' : 'Create Event'}</h2>
-        <div style={{marginBottom:16}}>
-          <label style={{display:'block',marginBottom:8,color:'#b0b0b0',fontSize:14}}>Title *</label>
-          <input value={formData.title} onChange={e=>setFormData({...formData,title:e.target.value})} style={{
-            width:'calc(100% - 32px)',
-            padding:'12px 16px',
-            background:'#1a1a1a',
-            border:'1px solid #404040',
-            borderRadius:8,
-            color:'#e0e0e0',
-            fontSize:15,
-            outline:'none'
-          }} />
+    <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}}>
+      <div style={{width:'95%',maxWidth:760,maxHeight:'86vh',overflowY:'auto',background:'#121212',borderRadius:12,padding:24,border:'1px solid rgba(255,255,255,0.04)',boxShadow:'0 12px 30px rgba(0,0,0,0.6)',fontFamily:'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial',color:'#e6e6e6'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+          <h2 style={{margin:0,color:'#fff',fontSize:32,fontWeight:800,letterSpacing:0.5}}>Event Details</h2>
+          <button onClick={onClose} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',padding:'8px 16px',borderRadius:8,cursor:'pointer',fontSize:16}}>Close</button>
         </div>
-        <div style={{marginBottom:16}}>
-          <label style={{display:'block',marginBottom:8,color:'#b0b0b0',fontSize:14}}>Description</label>
-          <textarea value={formData.description} onChange={e=>setFormData({...formData,description:e.target.value})} style={{
-            width:'calc(100% - 32px)',
-            padding:'12px 16px',
-            background:'#1a1a1a',
-            border:'1px solid #404040',
-            borderRadius:8,
-            color:'#e0e0e0',
-            fontSize:15,
-            outline:'none',
-            minHeight:80,
-            resize:'vertical'
-          }} />
-        </div>
-        <div style={{marginBottom:16}}>
-          <label style={{display:'block',marginBottom:8,color:'#b0b0b0',fontSize:14}}>Date & Time *</label>
-          <input type="datetime-local" value={formData.date?.slice(0,16)} onChange={e=>setFormData({...formData,date:new Date(e.target.value).toISOString()})} style={{
-            width:'calc(100% - 32px)',
-            padding:'12px 16px',
-            background:'#1a1a1a',
-            border:'1px solid #404040',
-            borderRadius:8,
-            color:'#e0e0e0',
-            fontSize:15,
-            outline:'none'
-          }} />
-        </div>
-        <div style={{marginBottom:16}}>
-          <label style={{display:'block',marginBottom:8,color:'#b0b0b0',fontSize:14}}>Location *</label>
-          <input value={formData.location} onChange={e=>setFormData({...formData,location:e.target.value})} style={{
-            width:'calc(100% - 32px)',
-            padding:'12px 16px',
-            background:'#1a1a1a',
-            border:'1px solid #404040',
-            borderRadius:8,
-            color:'#e0e0e0',
-            fontSize:15,
-            outline:'none'
-          }} />
-        </div>
-        <div style={{marginBottom:16}}>
-          <label style={{display:'block',marginBottom:8,color:'#b0b0b0',fontSize:14}}>Capacity</label>
-          <input type="number" value={formData.capacity} onChange={e=>setFormData({...formData,capacity:parseInt(e.target.value)})} style={{
-            width:'calc(100% - 32px)',
-            padding:'12px 16px',
-            background:'#1a1a1a',
-            border:'1px solid #404040',
-            borderRadius:8,
-            color:'#e0e0e0',
-            fontSize:15,
-            outline:'none'
-          }} />
-        </div>
-        <div style={{marginBottom:24}}>
-          <label style={{display:'block',marginBottom:8,color:'#b0b0b0',fontSize:14}}>Status</label>
-          <select value={formData.status || 'upcoming'} onChange={e=>setFormData({...formData,status:e.target.value})} style={{
-            width:'100%',
-            padding:'12px 16px',
-            background:'#1a1a1a',
-            border:'1px solid #404040',
-            borderRadius:8,
-            color:'#e0e0e0',
-            fontSize:15,
-            outline:'none',
-            cursor:'pointer'
-          }}>
-            <option value="upcoming">Upcoming</option>
-            <option value="ongoing">Ongoing</option>
-            <option value="completed">Completed</option>
-          </select>
-        </div>
-        <div style={{display:'flex',gap:12,borderTop:'1px solid #404040',paddingTop:20}}>
-          <button onClick={handleSave} style={{
-            flex:1,
-            padding:'12px',
-            background:'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            color:'#fff',
-            border:'none',
-            borderRadius:8,
-            cursor:'pointer',
-            fontSize:15,
-            fontWeight:600
-          }}>{isEdit ? 'Save Changes' : 'Create Event'}</button>
-          {isEdit && <button onClick={handleDelete} style={{
-            padding:'12px 24px',
-            background:'#dc3545',
-            color:'#fff',
-            border:'none',
-            borderRadius:8,
-            cursor:'pointer',
-            fontSize:15,
-            fontWeight:600
-          }}>Delete</button>}
-          <button onClick={onClose} style={{
-            padding:'12px 24px',
-            background:'#3a3a3a',
-            color:'#e0e0e0',
-            border:'1px solid #505050',
-            borderRadius:8,
-            cursor:'pointer',
-            fontSize:15,
-            fontWeight:500
-          }}>Cancel</button>
+
+        <div style={{color:'#e6e6e6'}}>
+          <div style={{background:'#161616',padding:16,borderRadius:10,border:'1px solid rgba(255,255,255,0.02)'}}>
+            <div style={{display:'grid',gap:10}}>
+              <div>
+                <label style={{display:'block',marginBottom:8,color:'#bfc6d8',fontSize:13}}>Title</label>
+                <input value={formData.title} onChange={e=>setFormData({...formData,title:e.target.value})} style={{width:'100%',padding:'14px 18px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',outline:'none',fontSize:16,marginBottom:2,boxSizing:'border-box'}} />
+              </div>
+              <div>
+                <label style={{display:'block',marginBottom:8,color:'#bfc6d8',fontSize:13}}>Description</label>
+                <textarea value={formData.description} onChange={e=>setFormData({...formData,description:e.target.value})} style={{width:'100%',minHeight:120,padding:'14px 18px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',outline:'none',fontSize:16,marginBottom:2,boxSizing:'border-box'}} />
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                <div>
+                  <label style={{display:'block',marginBottom:6,color:'#bfc6d8',fontSize:13}}>Date</label>
+                  <input type="datetime-local" value={formData.date?.slice(0,16)} onChange={e=>setFormData({...formData,date:new Date(e.target.value).toISOString()})} style={{width:'100%',padding:'12px 16px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',boxSizing:'border-box',fontSize:15}} />
+                </div>
+                <div>
+                  <label style={{display:'block',marginBottom:6,color:'#bfc6d8',fontSize:13}}>Location</label>
+                  <input value={formData.location} onChange={e=>setFormData({...formData,location:e.target.value})} style={{width:'100%',padding:'12px 16px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',boxSizing:'border-box',fontSize:15}} />
+                </div>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                <div>
+                  <label style={{display:'block',marginBottom:6,color:'#bfc6d8',fontSize:13}}>Capacity</label>
+                  <input type="number" value={formData.capacity} onChange={e=>setFormData({...formData,capacity:parseInt(e.target.value)})} style={{width:'100%',padding:'12px 16px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',boxSizing:'border-box',fontSize:15}} />
+                </div>
+                <div>
+                  <label style={{display:'block',marginBottom:6,color:'#bfc6d8',fontSize:13}}>Status</label>
+                  <select value={formData.status || 'upcoming'} onChange={e=>setFormData({...formData,status:e.target.value})} style={{width:'100%',padding:'12px 16px',borderRadius:10,background:'#0f0f0f',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',boxSizing:'border-box',fontSize:15}}>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="ongoing">Ongoing</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div style={{display:'flex',gap:12,marginTop:16,justifyContent:'flex-end'}}>
+              <button onClick={handleSave} style={{padding:'10px 18px',background:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',color:'#fff',border:'none',borderRadius:8,cursor:'pointer',fontWeight:700}}>Save</button>
+              {isEdit && <button onClick={handleDelete} style={{padding:'10px 18px',background:'#dc3545',color:'#fff',border:'none',borderRadius:8,cursor:'pointer',fontWeight:700}}>Delete</button>}
+              <button onClick={onClose} style={{padding:'10px 18px',background:'#2a2a2a',color:'#fff',border:'1px solid rgba(255,255,255,0.03)',borderRadius:8,cursor:'pointer'}}>Cancel</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -720,29 +772,39 @@ function ScannerSection(){
           alignItems:'center',
           justifyContent:'center',
           zIndex:1000,
-          padding:20
+          padding:'20px'
         }}>
           <div style={{
             background:'#2d2d2d',
             border:'1px solid #404040',
             borderRadius:16,
-            padding:32,
-            maxWidth:600,
+            padding:'24px',
+            maxWidth:'600px',
             width:'100%',
+            maxHeight:'90vh',
+            overflowY:'auto',
             boxShadow:'0 8px 32px rgba(0,0,0,0.5)'
           }}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
-              <h3 style={{margin:0,color:'#fff',fontSize:24}}>🎫 {selectedEvent?.title}</h3>
+              <h3 style={{margin:0,color:'#fff',fontSize:24,flex:1}}>🎫 {selectedEvent?.title}</h3>
               <button onClick={closeScanner} style={{
-                background:'transparent',
-                border:'none',
-                color:'#888',
-                fontSize:28,
-                cursor:'pointer'
+                background:'#3a3a3a',
+                border:'1px solid #505050',
+                color:'#e0e0e0',
+                fontSize:24,
+                cursor:'pointer',
+                borderRadius:'8px',
+                width:'36px',
+                height:'36px',
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center',
+                padding:0,
+                lineHeight:1
               }}>×</button>
             </div>
             
-            <div id="qr-reader" style={{marginBottom:20,borderRadius:12,overflow:'hidden'}}></div>
+            <div id="qr-reader" style={{marginBottom:20,borderRadius:12,overflow:'hidden',width:'100%'}}></div>
             
             <div style={{display:'flex',gap:12,marginBottom:16}}>
               <button onClick={startScanner} style={{
@@ -777,17 +839,21 @@ function ScannerSection(){
                 borderRadius:8,
                 color: lastScan.includes('✓') ? '#4ade80' : lastScan.includes('✗') ? '#f87171' : '#667eea',
                 fontSize:14,
-                fontWeight:600
+                fontWeight:600,
+                marginBottom:16
               }}>{lastScan}</div>
             )}
 
-            <div style={{marginTop:24,maxHeight:200,overflowY:'auto',background:'#1a1a1a',borderRadius:10,padding:16}}>
+            <div style={{maxHeight:'200px',overflowY:'auto',background:'#1a1a1a',borderRadius:10,padding:16}}>
               <h4 style={{margin:'0 0 12px 0',color:'#fff',fontSize:16}}>Checked-In Attendees ({attendees.filter(a=>a.status==='checked-in').length})</h4>
               {attendees.filter(a=>a.status==='checked-in').map(a=> (
                 <div key={a.id} style={{padding:'8px 0',borderBottom:'1px solid #404040',color:'#b0b0b0',fontSize:14}}>
                   ✓ {a.name} ({a.email})
                 </div>
               ))}
+              {attendees.filter(a=>a.status==='checked-in').length === 0 && (
+                <p style={{color:'#888',fontSize:14,margin:0}}>No checked-in attendees yet</p>
+              )}
             </div>
           </div>
         </div>
@@ -822,7 +888,19 @@ function ExportSection(){
   }
 
   async function exportPDF(eventId){
-    alert('PDF export coming soon! Use CSV for now.')
+    try{
+      const res = await axios.get(`http://localhost:4000/api/reports/${eventId}/export-pdf`, { responseType: 'blob' })
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `event-${eventId}-attendees.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+    }catch(err){
+      alert('PDF export failed: ' + (err.response?.data?.message || err.message || 'Unknown error'))
+    }
   }
 
   const filteredEvents = events.filter(e=> 
@@ -832,7 +910,7 @@ function ExportSection(){
 
   return (
     <div>
-      <h2 style={{marginBottom:24,fontSize:28,fontWeight:700,color:'#fff'}}>Export Attendee Lists</h2>
+      <h2 style={{marginBottom:24,fontSize:28,fontWeight:700,color:'#fff'}}>Reports/Export</h2>
 
       <div style={{marginBottom:24}}>
         <input
@@ -1046,61 +1124,42 @@ function AnnouncementsSection(){
       </div>
 
       {selectedEvent && !showForm && (
-        <div style={{
-          position:'fixed',
-          top:0,
-          left:0,
-          right:0,
-          bottom:0,
-          background:'rgba(0,0,0,0.85)',
-          display:'flex',
-          alignItems:'center',
-          justifyContent:'center',
-          zIndex:1000,
-          padding:20
-        }}>
-          <div style={{
-            background:'#2d2d2d',
-            border:'1px solid #404040',
-            borderRadius:16,
-            padding:32,
-            maxWidth:600,
-            width:'100%',
-            boxShadow:'0 8px 32px rgba(0,0,0,0.5)'
-          }}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
-              <h3 style={{margin:0,color:'#fff',fontSize:24}}>Event Details</h3>
-              <button onClick={()=>setSelectedEvent(null)} style={{
-                background:'transparent',
-                border:'none',
-                color:'#888',
-                fontSize:28,
-                cursor:'pointer'
-              }}>×</button>
-            </div>
-            
-            <div style={{marginBottom:20}}>
-              <h4 style={{margin:'0 0 16px 0',fontSize:20,fontWeight:600,color:'#fff'}}>{selectedEvent.title}</h4>
-              <div style={{fontSize:15,color:'#b0b0b0',lineHeight:1.8}}>
-                <p style={{margin:'8px 0'}}><strong style={{color:'#999'}}>Date:</strong> {new Date(selectedEvent.date).toLocaleDateString()}</p>
-                <p style={{margin:'8px 0'}}><strong style={{color:'#999'}}>Location:</strong> {selectedEvent.location}</p>
-                <p style={{margin:'8px 0'}}><strong style={{color:'#999'}}>Capacity:</strong> {selectedEvent.capacity}</p>
-                <p style={{margin:'8px 0'}}><strong style={{color:'#999'}}>Registered:</strong> {selectedEvent.attendeesCount || 0}</p>
-                {selectedEvent.description && <p style={{margin:'12px 0 0 0'}}><strong style={{color:'#999'}}>Description:</strong><br/>{selectedEvent.description}</p>}
-              </div>
+        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.5)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}}>
+          <div style={{width:'95%',maxWidth:760,maxHeight:'86vh',overflowY:'auto',background:'#121212',borderRadius:12,padding:24,border:'1px solid rgba(255,255,255,0.04)',boxShadow:'0 12px 30px rgba(0,0,0,0.6)',fontFamily:'Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial',color:'#e6e6e6'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+              <h2 style={{margin:0,color:'#fff',fontSize:32,fontWeight:800,letterSpacing:0.5}}>Event Details</h2>
+              <button onClick={()=>setSelectedEvent(null)} style={{background:'transparent',border:'1px solid rgba(255,255,255,0.06)',color:'#fff',padding:'8px 16px',borderRadius:8,cursor:'pointer',fontSize:16}}>Close</button>
             </div>
 
-            <button onClick={()=>setSelectedEvent(null)} style={{
-              width:'100%',
-              padding:'12px',
-              background:'#3a3a3a',
-              color:'#e0e0e0',
-              border:'1px solid #505050',
-              borderRadius:10,
-              cursor:'pointer',
-              fontSize:15,
-              fontWeight:500
-            }}>Close</button>
+            <div style={{color:'#e6e6e6'}}>
+              <h3 style={{margin:'6px 0 12px 0',fontSize:26,fontWeight:800,letterSpacing:0.2}}>{selectedEvent.title}</h3>
+              <p style={{color:'#bdbdbd',lineHeight:1.6,marginBottom:16}}>{selectedEvent.description}</p>
+
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,fontSize:14,color:'#cfcfcf'}}>
+                <div style={{padding:6}}>
+                  <div style={{fontSize:15,color:'#9aa4ff',marginBottom:6,letterSpacing:0.8,fontWeight:700}}>DATE & TIME</div>
+                  <div style={{fontWeight:600}}>{new Date(selectedEvent.date).toLocaleString()}</div>
+                </div>
+                <div style={{padding:6}}>
+                  <div style={{fontSize:15,color:'#9aa4ff',marginBottom:6,letterSpacing:0.8,fontWeight:700}}>LOCATION</div>
+                  <div style={{fontWeight:600}}>{selectedEvent.location}</div>
+                </div>
+              </div>
+
+              <div style={{marginTop:18}}>
+                <div style={{fontSize:15,color:'#9aa4ff',marginBottom:8,letterSpacing:0.8,fontWeight:700}}>ATTENDANCE</div>
+                <div style={{height:12,background:'#0f0f0f',borderRadius:8,overflow:'hidden',border:'1px solid rgba(255,255,255,0.03)'}}>
+                  <div style={{height:'100%',background:'linear-gradient(90deg,#667eea,#764ba2)',width:Math.min(100, Math.round(((selectedEvent.attendeesCount||0)/(selectedEvent.capacity||1))*100)) + '%'}} />
+                </div>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:8,color:'#9fb0ff'}}>
+                  <div style={{fontSize:15,color:'#7fb0ff'}}>{Math.max(0, (selectedEvent.capacity || 0) - (selectedEvent.attendeesCount || 0))} spots remaining</div>
+                  <div style={{fontSize:15,color:'#cfcfcf'}}>{selectedEvent.attendeesCount || 0} / {selectedEvent.capacity || 0}</div>
+                </div>
+              </div>
+
+              <button onClick={()=>openAnnounceForm(selectedEvent)} style={{width:'100%',marginTop:20,padding:'14px 18px',background:'linear-gradient(135deg,#667eea 0%,#764ba2 100%)',color:'#fff',border:'none',borderRadius:8,cursor:'pointer',fontWeight:700,fontSize:15}}>Make Announcement</button>
+              <div style={{marginTop:12,color:selectedEvent.status === 'checked-in' ? '#4ade80' : '#9aa4ff',fontWeight:700,fontSize:16}}>{selectedEvent.status || 'upcoming'}</div>
+            </div>
           </div>
         </div>
       )}

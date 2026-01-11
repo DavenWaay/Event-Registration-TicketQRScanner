@@ -27,6 +27,12 @@
       "password": "$2a$10$TQna.0NXhzmBAyo2YW/WU.MsZCHNKUAwEwaXf9zfmVGoN5HIonQLq",
       "role": "organizer",
       "active": true
+    },
+    {
+      "id": 1768055189901,
+      "username": "admin2@event.com",
+      "password": "$2a$10$2bk90ntoB7NSRoVX5qtb0.1LDvsgOG9vH83DxQB39xYk/.UZGwIc.",
+      "active": true
     }
   ],
   "events": [
@@ -36,8 +42,8 @@
       "description": "An evening of talks and networking.",
       "date": "2026-03-12T18:00:00Z",
       "location": "Community Hall",
-      "capacity": 100,
-      "attendeesCount": 2
+      "capacity": 99,
+      "attendeesCount": 3
     },
     {
       "id": "evt-1768028606254",
@@ -47,7 +53,17 @@
       "location": "paris",
       "capacity": 50,
       "status": "upcoming",
-      "attendeesCount": 1
+      "attendeesCount": 2
+    },
+    {
+      "id": "evt-1768055148783",
+      "title": "admin creating event",
+      "description": "dasda",
+      "date": "2026-01-10T14:25:00.000Z",
+      "location": "dyan lang ya",
+      "capacity": 20,
+      "status": "completed",
+      "attendeesCount": 5
     }
   ],
   "tickets": [
@@ -80,6 +96,83 @@
       "company": "dsadasdads",
       "status": "issued",
       "createdAt": "2026-01-10T11:14:04.707Z"
+    },
+    {
+      "id": "e7f5a6d7-f4fe-4fed-b8a4-e8f2211faa66",
+      "eventId": "evt-1768028606254",
+      "attendeeId": null,
+      "eventTitle": "niggas in paris",
+      "name": "admin",
+      "email": "admin@gmail.com",
+      "company": "dsada",
+      "status": "issued",
+      "createdAt": "2026-01-10T15:35:46.259Z"
+    },
+    {
+      "id": "24a59b55-8546-4c44-a60a-0a859b495816",
+      "eventId": "evt-1768055148783",
+      "attendeeId": null,
+      "eventTitle": "admin creating event",
+      "name": "admin",
+      "email": "admin@gmail.com",
+      "company": "dsada",
+      "status": "issued",
+      "createdAt": "2026-01-10T15:36:28.299Z"
+    },
+    {
+      "id": "c28a59f7-63c3-465f-b823-9c8f161e807b",
+      "eventId": "evt-1768055148783",
+      "attendeeId": null,
+      "eventTitle": "admin creating event",
+      "name": "dsada",
+      "email": "dsada@gmail.com",
+      "company": "dasda",
+      "status": "issued",
+      "createdAt": "2026-01-10T15:43:48.925Z"
+    },
+    {
+      "id": "0f7f6ef9-21c5-4565-990c-ba5700d72d32",
+      "eventId": "evt-1768055148783",
+      "attendeeId": null,
+      "eventTitle": "admin creating event",
+      "name": "admin",
+      "email": "organizer@event.com",
+      "company": "dsada",
+      "status": "issued",
+      "createdAt": "2026-01-10T15:44:08.212Z"
+    },
+    {
+      "id": "34ada088-b5cb-4a7f-8de9-91b76edcf5de",
+      "eventId": "evt-1768055148783",
+      "attendeeId": null,
+      "eventTitle": "admin creating event",
+      "name": "admin@event.com",
+      "email": "admin@event.com",
+      "company": "1234",
+      "status": "issued",
+      "createdAt": "2026-01-11T00:36:27.351Z"
+    },
+    {
+      "id": "33b80b2d-8b32-423d-8456-236f72f2476c",
+      "eventId": "evt-1768055148783",
+      "attendeeId": 1768043617626,
+      "eventTitle": "admin creating event",
+      "name": "dadasddsad",
+      "email": "dave@gmail.com",
+      "company": "dsada",
+      "status": "issued",
+      "createdAt": "2026-01-11T02:37:48.893Z"
+    },
+    {
+      "id": "c6935712-ec69-412d-8433-b09b6a19064a",
+      "eventId": "evt-1",
+      "attendeeId": null,
+      "eventTitle": "Community Tech Meetup",
+      "name": "admin",
+      "email": "niggasauruis@gmail.com",
+      "company": "1234",
+      "status": "issued",
+      "createdAt": "2026-01-11T02:38:50.639Z"
     }
   ],
   "attendees": [

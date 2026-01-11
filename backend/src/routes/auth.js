@@ -52,8 +52,8 @@ router.post('/login', async (req, res) => {
   const ok = await bcrypt.compare(password, user.password)
   if (!ok) return res.status(401).json({ message: 'Invalid credentials' })
   if (!user.active) return res.status(403).json({ message: 'Account disabled' })
-  const token = jwt.sign({ sub: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: '8h' })
-  res.json({ token, role: user.role, user: { id: user.id, username: user.username, role: user.role } })
+  const token = jwt.sign({ sub: user.id, username: user.username, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '8h' })
+  res.json({ token, role: user.role, user: { id: user.id, username: user.username, email: user.email, role: user.role } })
 })
 
 module.exports = router
