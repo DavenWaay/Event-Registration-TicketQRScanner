@@ -15,6 +15,7 @@ export default function Organizer(){
   const [attendees, setAttendees] = useState([])
   const scannerRef = useRef(null)
   const [scanning, setScanning] = useState(false)
+  const isProcessingRef = useRef(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userRole, setUserRole] = useState(null)
 
@@ -57,14 +58,21 @@ export default function Organizer(){
     try{
       await html5QrCode.start({ facingMode: 'environment' }, { fps: 10, qrbox: 250 }, async (decodedText, decodedResult) => {
         // decodedText should be ticketId
+        if (isProcessingRef.current) return
+        const ticketId = (decodedText || '').trim()
+        if (!ticketId) return
+        isProcessingRef.current = true
         try{
           const token = localStorage.getItem('token')
           const headers = token ? { Authorization: `Bearer ${token}` } : {}
-          const res = await axios.post('http://localhost:4000/api/verify', { ticketId: (decodedText || '').trim() }, { headers })
+          const res = await axios.post('http://localhost:4000/api/verify', { ticketId }, { headers })
           await alertModal('Checked-in: ' + res.data.ticket.id)
           fetchAttendees(selected.id)
         }catch(err){
           await alertModal(err?.response?.data?.message || 'Verify failed')
+        }finally{
+          // small debounce to avoid immediate re-scan
+          setTimeout(()=>{ isProcessingRef.current = false }, 700)
         }
       })
     }catch(err){

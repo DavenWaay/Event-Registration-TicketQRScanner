@@ -634,6 +634,7 @@ function ScannerSection(){
   const scannerRef = useRef(null)
   const html5QrCode = useRef(null)
   const [lastScan, setLastScan] = useState('')
+  const isProcessing = useRef(false)
 
   useEffect(()=>{
     axios.get('http://localhost:4000/api/events')
@@ -690,16 +691,22 @@ function ScannerSection(){
 
   async function onScanSuccess(decodedText){
     if (!selectedEvent) return
-    setLastScan(`Scanned: ${decodedText.slice(0,20)}...`)
-      try{
-        const token = localStorage.getItem('token')
-        const headers = token ? { Authorization: `Bearer ${token}` } : {}
-        await axios.post('http://localhost:4000/api/verify', { ticketId: (decodedText || '').trim() }, { headers })
-        setLastScan('✓ Check-in successful!')
-        loadAttendees(selectedEvent.id)
-      }catch(err){
-        setLastScan('✗ Check-in failed: ' + (err.response?.data?.message || 'Unknown error'))
-      }
+    const ticketId = (decodedText || '').trim()
+    if (!ticketId) return
+    setLastScan(`Scanned: ${ticketId.slice(0,20)}...`)
+    if (isProcessing.current) return
+    isProcessing.current = true
+    try{
+      const token = localStorage.getItem('token')
+      const headers = token ? { Authorization: `Bearer ${token}` } : {}
+      await axios.post('http://localhost:4000/api/verify', { ticketId }, { headers })
+      setLastScan('✓ Check-in successful!')
+      loadAttendees(selectedEvent.id)
+    }catch(err){
+      setLastScan('✗ Check-in failed: ' + (err.response?.data?.message || 'Unknown error'))
+    }finally{
+      setTimeout(()=>{ isProcessing.current = false }, 700)
+    }
   }
 
   const filteredEvents = events.filter(e=> 
