@@ -43,7 +43,7 @@
       "date": "2026-03-12T18:00:00Z",
       "location": "Community Hall",
       "capacity": 99,
-      "attendeesCount": 4
+      "attendeesCount": 5
     },
     {
       "id": "evt-1768028606254",
@@ -53,7 +53,7 @@
       "location": "paris",
       "capacity": 50,
       "status": "upcoming",
-      "attendeesCount": 4
+      "attendeesCount": 3
     },
     {
       "id": "evt-1768055148783",
@@ -85,17 +85,6 @@
       "status": "checked-in",
       "createdAt": "2026-01-10T02:35:07.169Z",
       "checkedInAt": "2026-01-10T02:35:07.202Z"
-    },
-    {
-      "id": "97fdcf63-2ea1-4392-a065-1629c4dc487a",
-      "eventId": "evt-1768028606254",
-      "attendeeId": 1768043617626,
-      "eventTitle": "niggas in paris",
-      "name": "dadasd",
-      "email": "dave@gmail.com",
-      "company": "dsadasdads",
-      "status": "issued",
-      "createdAt": "2026-01-10T11:14:04.707Z"
     },
     {
       "id": "e7f5a6d7-f4fe-4fed-b8a4-e8f2211faa66",
@@ -217,6 +206,17 @@
       "company": "DeezCompany",
       "status": "issued",
       "createdAt": "2026-01-11T16:40:56.778Z"
+    },
+    {
+      "id": "9f6eb45a-5c3c-46fb-99a7-607042b73668",
+      "eventId": "evt-1",
+      "attendeeId": null,
+      "eventTitle": "Community Tech Meetup",
+      "name": "keshi",
+      "email": "keshi@gmail.com",
+      "company": "88studios",
+      "status": "issued",
+      "createdAt": "2026-01-12T02:37:53.996Z"
     }
   ],
   "attendees": [
@@ -247,6 +247,13 @@
       "email": "string",
       "company": "string",
       "password": "$2a$10$Tx7lntn7F3Yxq4JS9dTQNuvuGUDwS8T9JBQVCkR6cOfRW.uhztVx."
+    },
+    {
+      "id": 1768185308833,
+      "name": "Matt Quiling",
+      "email": "dave.waay18@gmail.com",
+      "company": "Allorica",
+      "password": "$2a$10$fsbXZdfGUg23l2qhgcXoBOjhnTpEDP/73OE.STCamVIH1XMmedzvy"
     }
   ]
 }
