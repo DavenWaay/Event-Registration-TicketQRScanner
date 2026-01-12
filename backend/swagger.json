@@ -10,6 +10,13 @@
       "url": "http://localhost:4000"
     }
   ],
+  "tags": [
+    { "name": "Public", "description": "Public endpoints (no auth required)" },
+    { "name": "Auth", "description": "Authentication: signup / login" },
+    { "name": "Attendee", "description": "Attendee endpoints (ticket owner actions)" },
+    { "name": "Organizer", "description": "Organizer endpoints (event management, announcements, reports)" },
+    { "name": "Admin", "description": "Admin-only endpoints (user management)" }
+  ],
   "components": {
     "securitySchemes": {
       "bearerAuth": {
@@ -137,6 +144,7 @@
   "paths": {
     "/api/events": {
       "get": {
+        "tags": ["Public"],
         "summary": "List events",
         "responses": {
           "200": {
@@ -155,6 +163,7 @@
         }
       },
       "post": {
+        "tags": ["Organizer"],
         "summary": "Create event",
         "requestBody": {
           "required": true,
@@ -182,6 +191,7 @@
     },
     "/api/events/{id}": {
       "get": {
+        "tags": ["Public"],
         "summary": "Get event",
         "parameters": [
           {
@@ -217,6 +227,7 @@
         }
       },
       "put": {
+        "tags": ["Organizer"],
         "summary": "Update event",
         "parameters": [
           {
@@ -255,6 +266,7 @@
         }
       },
       "delete": {
+        "tags": ["Organizer"],
         "summary": "Delete event",
         "parameters": [
           {
@@ -278,6 +290,7 @@
     },
     "/api/registrations/my-tickets": {
       "get": {
+        "tags": ["Attendee"],
         "summary": "Get tickets for current user (attendee or staff)",
         "security": [
           {
@@ -306,6 +319,7 @@
     },
     "/api/registrations/{eventId}": {
       "get": {
+        "tags": ["Organizer"],
         "summary": "List registrations (tickets) for an event",
         "parameters": [
           {
@@ -339,6 +353,7 @@
     },
     "/api/registrations/{eventId}/register": {
       "post": {
+        "tags": ["Attendee"],
         "summary": "Register for an event",
         "parameters": [
           {
@@ -401,6 +416,7 @@
     },
     "/api/registrations/{ticketId}": {
       "patch": {
+        "tags": ["Attendee","Organizer"],
         "summary": "Update ticket",
         "parameters": [
           {
@@ -461,6 +477,7 @@
         }
       },
       "delete": {
+        "tags": ["Attendee","Organizer"],
         "summary": "Delete (cancel) ticket",
         "parameters": [
           {
@@ -507,6 +524,7 @@
     },
     "/api/verify": {
       "post": {
+        "tags": ["Organizer"],
         "summary": "Verify and check-in a ticket",
         "security": [
           {
@@ -567,6 +585,7 @@
     },
     "/api/auth/signup": {
       "post": {
+        "tags": ["Auth"],
         "summary": "Attendee signup",
         "requestBody": {
           "required": true,
@@ -619,6 +638,7 @@
     },
     "/api/auth/login": {
       "post": {
+        "tags": ["Auth"],
         "summary": "Login (attendee or organizer/admin)",
         "requestBody": {
           "required": true,
@@ -664,6 +684,7 @@
     },
     "/api/admin/users": {
       "get": {
+        "tags": ["Admin"],
         "summary": "List users (admin)",
         "security": [
           {
@@ -693,6 +714,7 @@
         }
       },
       "post": {
+        "tags": ["Admin"],
         "summary": "Create user (admin)",
         "security": [
           {
@@ -743,6 +765,7 @@
     },
     "/api/admin/users/{id}": {
       "patch": {
+        "tags": ["Admin"],
         "summary": "Update user (admin)",
         "security": [
           {
@@ -796,6 +819,7 @@
     },
     "/api/reports/{eventId}/export": {
       "get": {
+        "tags": ["Organizer"],
         "summary": "Export attendees CSV",
         "parameters": [
           {
@@ -827,6 +851,7 @@
     },
     "/api/reports/{eventId}/export-pdf": {
       "get": {
+        "tags": ["Organizer"],
         "summary": "Export attendees PDF",
         "parameters": [
           {
@@ -858,6 +883,7 @@
     },
     "/api/announcements": {
       "post": {
+        "tags": ["Organizer"],
         "summary": "Send announcement to event attendees (organizer/admin)",
         "security": [
           {

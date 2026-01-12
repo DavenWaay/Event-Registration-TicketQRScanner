@@ -26,6 +26,10 @@ export default function MyTickets(){
 
   useEffect(()=>{
     fetchTickets()
+    const iv = setInterval(()=>{
+      fetchTickets()
+    }, 5000)
+    return ()=> clearInterval(iv)
   },[])
 
   async function fetchTickets(){
