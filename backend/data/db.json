@@ -1,11 +1,6 @@
 {
   "users": [
-    {
-      "id": 1768012416467,
-      "username": "test_admin",
-      "password": "$2a$10$RJ07YQFtAscqG7MefA6Yr.rvFczFyGuWcA30vg0SHHdC2/zAjmVzO",
-      "role": "organizer"
-    },
+   
     {
       "id": 1768026918266,
       "username": "admin",
@@ -193,8 +188,9 @@
       "name": "stephen",
       "email": "davekirito6@gmail.com",
       "company": "123",
-      "status": "issued",
-      "createdAt": "2026-01-11T06:24:23.938Z"
+      "status": "checked-in",
+      "createdAt": "2026-01-11T06:24:23.938Z",
+      "checkedInAt": "2026-01-11T16:18:27.023Z"
     },
     {
       "id": "6edb2427-5eef-4c24-8aa3-1756992fc286",
@@ -215,8 +211,9 @@
       "name": "Daven Waay",
       "email": "waay.daven@gmail.com",
       "company": "DeezCompany",
-      "status": "issued",
-      "createdAt": "2026-01-11T15:58:29.481Z"
+      "status": "checked-in",
+      "createdAt": "2026-01-11T15:58:29.481Z",
+      "checkedInAt": "2026-01-11T16:14:03.350Z"
     }
   ],
   "attendees": [
