@@ -6,6 +6,7 @@ import Register from './pages/Register'
 import MyTickets from './pages/MyTickets'
 import OrganizerPanel from './pages/OrganizerPanel'
 import AdminPanel from './pages/AdminPanel'
+import iconImage from './assets/icon.png'
 
 export default function App(){
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -69,6 +70,9 @@ export default function App(){
     <div style={{minHeight:'100vh',background:'#1a1a1a',color:'#e0e0e0'}}>
       {/* Modern Navbar */}
       <header style={{
+        position:'sticky',
+        top:0,
+        zIndex:100,
         background:'#2d2d2d',
         borderBottom:'1px solid #404040',
         padding:'12px 24px',
@@ -77,7 +81,20 @@ export default function App(){
         gap:24,
         boxShadow:'0 2px 8px rgba(0,0,0,0.3)'
       }}>
-        <h2 style={{margin:0,fontSize:22,fontWeight:700,color:'#fff',letterSpacing:'-0.5px'}}>Event Registration</h2>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <img src={iconImage} alt="Logo" style={{width:36,height:36}} />
+          <h2 style={{
+            margin:0,
+            fontSize:22,
+            fontWeight:700,
+            background:'linear-gradient(135deg, #9333ea 0%, #a855f7 100%)',
+            WebkitBackgroundClip:'text',
+            WebkitTextFillColor:'transparent',
+            backgroundClip:'text',
+            letterSpacing:'-0.5px',
+            filter:'drop-shadow(0 0 10px rgba(147, 51, 234, 0.5))'
+          }}>Event Registration</h2>
+        </div>
         
         <nav style={{marginLeft:'auto',display:'flex',gap:12,alignItems:'center'}}>
           <button 
@@ -149,7 +166,11 @@ export default function App(){
         </div>
       </header>
 
-      <main style={{padding:'32px 24px',maxWidth:1400,margin:'0 auto'}}>
+      <main style={{
+        padding: page === 'list' ? 0 : '32px 24px',
+        maxWidth: page === 'list' ? 'none' : 1400,
+        margin:'0 auto'
+      }}>
         {page === 'list' && <EventList onRegister={(ev)=>{ setSelectedEvent(ev); setPage('register')}} />}
         {page === 'register' && selectedEvent && <Register event={selectedEvent} user={user} onDone={()=>setPage('my')} onCancel={()=>setPage('list')} />}
         {page === 'my' && <MyTickets />}

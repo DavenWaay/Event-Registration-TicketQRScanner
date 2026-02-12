@@ -1,10 +1,9 @@
 {
   "users": [
-   
     {
       "id": 1768026918266,
       "username": "admin",
-      "password": "$2a$10$wNAQGqsAEYZl1OdpPfnDB.dBGQL7flfxJPRz4ygcNg5.vHRsxB8oO",
+      "password": "$2a$10$oq64noPsqnWFEkzsxL9rG.sSmjSKZfQclgcJ4W5ow996Ad41fvV6S",
       "role": "admin",
       "active": true,
       "email": "admin@event.com"
@@ -19,7 +18,7 @@
     {
       "id": 1768045512056,
       "username": "organizer@event.com",
-      "password": "$2a$10$TQna.0NXhzmBAyo2YW/WU.MsZCHNKUAwEwaXf9zfmVGoN5HIonQLq",
+      "password": "$2a$10$oq64noPsqnWFEkzsxL9rG.sSmjSKZfQclgcJ4W5ow996Ad41fvV6S",
       "role": "organizer",
       "active": true
     },
@@ -37,28 +36,59 @@
       "description": "An evening of talks and networking.",
       "date": "2026-03-12T18:00:00Z",
       "location": "Community Hall",
-      "capacity": 99,
+      "capacity": 100,
       "attendeesCount": 5
     },
     {
-      "id": "evt-1768028606254",
-      "title": "ninjas in paris",
-      "description": "dasda",
-      "date": "2026-01-10T07:03:00.000Z",
-      "location": "paris",
+      "id": "evt-2",
+      "title": "Paris Tech Event",
+      "description": "A themed meetup celebrating programming and partnerships.",
+      "date": "2026-04-15T19:00:00Z",
+      "location": "Paris Conference Center",
       "capacity": 50,
       "status": "upcoming",
       "attendeesCount": 3
     },
     {
-      "id": "evt-1768055148783",
-      "title": "admin creating event",
-      "description": "dasda",
-      "date": "2026-01-10T14:25:00.000Z",
-      "location": "dyan lang ya",
-      "capacity": 20,
-      "status": "completed",
+      "id": "evt-3",
+      "title": "Admin Workshop",
+      "description": "Hands-on admin & organizer workflow session.",
+      "date": "2026-05-20T14:00:00Z",
+      "location": "Organizer Lab",
+      "capacity": 60,
+      "status": "upcoming",
       "attendeesCount": 6
+    }
+    ,
+    {
+      "id": "evt-4",
+      "title": "Design Systems Summit",
+      "description": "A day focused on design systems and component architecture.",
+      "date": "2026-06-10T09:30:00Z",
+      "location": "Design Hub",
+      "capacity": 200,
+      "status": "upcoming",
+      "attendeesCount": 0
+    },
+    {
+      "id": "evt-5",
+      "title": "Cloud Native Meetup",
+      "description": "Talks on containerization, observability, and CI/CD.",
+      "date": "2026-07-22T18:00:00Z",
+      "location": "Tech Center",
+      "capacity": 150,
+      "status": "upcoming",
+      "attendeesCount": 2
+    },
+    {
+      "id": "evt-6",
+      "title": "Frontend Frameworks Showdown",
+      "description": "A friendly comparison of modern frontend frameworks.",
+      "date": "2026-08-05T17:00:00Z",
+      "location": "Conference Room A",
+      "capacity": 120,
+      "status": "upcoming",
+      "attendeesCount": 1
     }
   ],
   "tickets": [
@@ -83,9 +113,9 @@
     },
     {
       "id": "e7f5a6d7-f4fe-4fed-b8a4-e8f2211faa66",
-      "eventId": "evt-1768028606254",
+      "eventId": "evt-2",
       "attendeeId": null,
-      "eventTitle": "niggas in paris",
+      "eventTitle": "Ninjas in Paris",
       "name": "admin",
       "email": "admin@gmail.com",
       "company": "dsada",
@@ -94,9 +124,9 @@
     },
     {
       "id": "24a59b55-8546-4c44-a60a-0a859b495816",
-      "eventId": "evt-1768055148783",
+      "eventId": "evt-3",
       "attendeeId": null,
-      "eventTitle": "admin creating event",
+      "eventTitle": "Admin Workshop",
       "name": "admin",
       "email": "admin@gmail.com",
       "company": "dsada",
@@ -105,9 +135,9 @@
     },
     {
       "id": "c28a59f7-63c3-465f-b823-9c8f161e807b",
-      "eventId": "evt-1768055148783",
+      "eventId": "evt-3",
       "attendeeId": null,
-      "eventTitle": "admin creating event",
+      "eventTitle": "Admin Workshop",
       "name": "dsada",
       "email": "dsada@gmail.com",
       "company": "dasda",
@@ -116,9 +146,9 @@
     },
     {
       "id": "0f7f6ef9-21c5-4565-990c-ba5700d72d32",
-      "eventId": "evt-1768055148783",
+      "eventId": "evt-3",
       "attendeeId": null,
-      "eventTitle": "admin creating event",
+      "eventTitle": "Admin Workshop",
       "name": "admin",
       "email": "organizer@event.com",
       "company": "dsada",
@@ -127,9 +157,9 @@
     },
     {
       "id": "34ada088-b5cb-4a7f-8de9-91b76edcf5de",
-      "eventId": "evt-1768055148783",
+      "eventId": "evt-3",
       "attendeeId": null,
-      "eventTitle": "admin creating event",
+      "eventTitle": "Admin Workshop",
       "name": "admin@event.com",
       "email": "admin@event.com",
       "company": "1234",
@@ -138,9 +168,9 @@
     },
     {
       "id": "33b80b2d-8b32-423d-8456-236f72f2476c",
-      "eventId": "evt-1768055148783",
+      "eventId": "evt-3",
       "attendeeId": 1768043617626,
-      "eventTitle": "admin creating event",
+      "eventTitle": "Admin Workshop",
       "name": "dadasddsad",
       "email": "dave@gmail.com",
       "company": "dsada",
@@ -160,9 +190,9 @@
     },
     {
       "id": "8aea5ad1-40d7-4d64-9929-9f911f79da0f",
-      "eventId": "evt-1768055148783",
+      "eventId": "evt-3",
       "attendeeId": null,
-      "eventTitle": "admin creating event",
+      "eventTitle": "Admin Workshop",
       "name": "Daven Waay",
       "email": "waay.daven@gmail.com",
       "company": "DeezCompany",
@@ -171,9 +201,9 @@
     },
     {
       "id": "55f1520d-fa3c-4985-9a1a-9b88b174ae20",
-      "eventId": "evt-1768028606254",
+      "eventId": "evt-2",
       "attendeeId": 1768110824786,
-      "eventTitle": "niggas in paris",
+      "eventTitle": "Ninjas in Paris",
       "name": "stephen",
       "email": "davekirito6@gmail.com",
       "company": "123",
@@ -194,9 +224,9 @@
     },
     {
       "id": "e1a7e1a2-7a8d-4e9f-a2f2-2cc710074b5f",
-      "eventId": "evt-1768028606254",
+      "eventId": "evt-2",
       "attendeeId": 1768103088468,
-      "eventTitle": "ninjas in paris",
+      "eventTitle": "Ninjas in Paris",
       "name": "Daven Waay",
       "email": "waay.daven@gmail.com",
       "company": "DeezCompany",
@@ -250,6 +280,13 @@
       "email": "dave.waay18@gmail.com",
       "company": "Allorica",
       "password": "$2a$10$fsbXZdfGUg23l2qhgcXoBOjhnTpEDP/73OE.STCamVIH1XMmedzvy"
+    },
+    {
+      "id": 1770893423254,
+      "name": "dave",
+      "email": "waaydicta@gmail.com",
+      "company": "N/A",
+      "password": "$2a$10$rbvVVL2PgwHaxemE/n.9S.U/GJam4P8TCJj6XEdII1r/ddkBtDzz2"
     }
   ]
 }
