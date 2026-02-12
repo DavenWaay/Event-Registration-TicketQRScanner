@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import bg2Image from '../assets/bg2.jpg'
+import { API_URL } from '../config/api'
 
 export default function EventList({ onRegister }){
   const [events, setEvents] = useState([])
   const [selectedEvent, setSelectedEvent] = useState(null)
 
   useEffect(()=>{
-    axios.get('http://localhost:4000/api/events').then(r=>setEvents(r.data)).catch(()=>setEvents([]))
+    axios.get(`${API_URL}/api/events`).then(r=>setEvents(r.data)).catch(()=>setEvents([]))
   },[])
 
   return (
@@ -225,3 +226,4 @@ function EventDetailsModal({ event, onClose, onRegister }){
     </div>
   )
 }
+

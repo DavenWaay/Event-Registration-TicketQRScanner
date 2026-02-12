@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Html5Qrcode } from 'html5-qrcode'
 import confirmModal from '../utils/confirm'
 import alertModal from '../utils/alert'
+import { API_URL } from '../config/api'
 
 function setAuthHeader(){
   const token = localStorage.getItem('token')
@@ -127,7 +128,7 @@ function MyEventsSection(){
   useEffect(()=>{ fetchEvents() }, [])
 
   function fetchEvents(){
-    axios.get('http://localhost:4000/api/events')
+    axios.get('${API_URL}/api/events')
       .then(r=>setEvents(r.data))
       .catch(()=>setEvents([]))
   }
@@ -225,7 +226,7 @@ function EventDetailsModal({ event, onClose }){
 
   async function handleSave(){
     try{
-      await axios.put('http://localhost:4000/api/events/' + event.id, formData)
+      await axios.put('${API_URL}/api/events/' + event.id, formData)
       await alertModal('Event updated')
       setEditing(false)
       onClose()
@@ -237,7 +238,7 @@ function EventDetailsModal({ event, onClose }){
   async function handleDelete(){
     if (!(await confirmModal('Delete this event? This cannot be undone.'))) return
     try{
-      await axios.delete('http://localhost:4000/api/events/' + event.id)
+      await axios.delete('${API_URL}/api/events/' + event.id)
       await alertModal('Event deleted')
       onClose()
     }catch(err){
@@ -352,10 +353,10 @@ function EventFormModal({ event, onClose }){
     }
     try{
       if (isEdit) {
-        await axios.put(`http://localhost:4000/api/events/${event.id}`, formData)
+        await axios.put(`${API_URL}/api/events/${event.id}`, formData)
         await alertModal('Event updated')
       } else {
-        await axios.post('http://localhost:4000/api/events', formData)
+        await axios.post('${API_URL}/api/events', formData)
         await alertModal('Event created')
       }
       onClose()
@@ -367,7 +368,7 @@ function EventFormModal({ event, onClose }){
   async function handleDelete(){
     if (!(await confirmModal('Delete this event? This cannot be undone.'))) return
     try{
-      await axios.delete(`http://localhost:4000/api/events/${event.id}`)
+      await axios.delete(`${API_URL}/api/events/${event.id}`)
       await alertModal('Event deleted')
       onClose()
     }catch(err){
@@ -441,14 +442,14 @@ function AttendeesSection(){
   const [filterStatus, setFilterStatus] = useState('all')
 
   useEffect(()=>{
-    axios.get('http://localhost:4000/api/events')
+    axios.get('${API_URL}/api/events')
       .then(r=>setEvents(r.data))
       .catch(()=>setEvents([]))
   }, [])
 
   function viewAttendees(event){
     setSelectedEvent(event)
-    axios.get(`http://localhost:4000/api/registrations/${event.id}`)
+    axios.get(`${API_URL}/api/registrations/${event.id}`)
       .then(r=>setAttendees(r.data))
       .catch(()=>setAttendees([]))
   }
@@ -637,13 +638,13 @@ function ScannerSection(){
   const isProcessing = useRef(false)
 
   useEffect(()=>{
-    axios.get('http://localhost:4000/api/events')
+    axios.get('${API_URL}/api/events')
       .then(r=>setEvents(r.data))
       .catch(()=>setEvents([]))
   }, [])
 
   function loadAttendees(eventId){
-    axios.get(`http://localhost:4000/api/registrations/${eventId}`)
+    axios.get(`${API_URL}/api/registrations/${eventId}`)
       .then(r=>setAttendees(r.data))
       .catch(()=>setAttendees([]))
   }
@@ -699,7 +700,7 @@ function ScannerSection(){
     try{
       const token = localStorage.getItem('token')
       const headers = token ? { Authorization: `Bearer ${token}` } : {}
-      await axios.post('http://localhost:4000/api/verify', { ticketId }, { headers })
+      await axios.post('${API_URL}/api/verify', { ticketId }, { headers })
       setLastScan('✓ Check-in successful!')
       loadAttendees(selectedEvent.id)
     }catch(err){
@@ -876,14 +877,14 @@ function ExportSection(){
   const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(()=>{
-    axios.get('http://localhost:4000/api/events')
+    axios.get('${API_URL}/api/events')
       .then(r=>setEvents(r.data))
       .catch(()=>setEvents([]))
   }, [])
 
   async function exportCSV(eventId){
     try{
-      const res = await axios.get(`http://localhost:4000/api/reports/${eventId}/export`, { responseType: 'blob' })
+      const res = await axios.get(`${API_URL}/api/reports/${eventId}/export`, { responseType: 'blob' })
       const url = window.URL.createObjectURL(new Blob([res.data]))
       const link = document.createElement('a')
       link.href = url
@@ -898,7 +899,7 @@ function ExportSection(){
 
   async function exportPDF(eventId){
     try{
-      const res = await axios.get(`http://localhost:4000/api/reports/${eventId}/export-pdf`, { responseType: 'blob' })
+      const res = await axios.get(`${API_URL}/api/reports/${eventId}/export-pdf`, { responseType: 'blob' })
       const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
       const link = document.createElement('a')
       link.href = url
@@ -1023,7 +1024,7 @@ function AnnouncementsSection(){
   const [message, setMessage] = useState('')
 
   useEffect(()=>{
-    axios.get('http://localhost:4000/api/events')
+    axios.get('${API_URL}/api/events')
       .then(r=>setEvents(r.data))
       .catch(()=>setEvents([]))
   }, [])
@@ -1048,7 +1049,7 @@ function AnnouncementsSection(){
     
     try {
       setAuthHeader()
-      const res = await axios.post('http://localhost:4000/api/announcements', {
+      const res = await axios.post('${API_URL}/api/announcements', {
         eventId: selectedEvent.id,
         subject,
         message
@@ -1301,7 +1302,7 @@ function OrganizerLogin({ onLogin }){
 
   async function doLogin(){
     try{
-      const res = await axios.post('http://localhost:4000/api/auth/login', { username, password })
+      const res = await axios.post('${API_URL}/api/auth/login', { username, password })
       const { token, role } = res.data
       
       if (role !== 'organizer' && role !== 'admin') {
@@ -1323,3 +1324,4 @@ function OrganizerLogin({ onLogin }){
     </div>
   )
 }
+

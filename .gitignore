@@ -43,3 +43,7 @@ temp/
 
 # Uploaded files
 uploads/
+
+#notes
+DEPLOYMENT_GUIDE.md
+QUICK_DEPLOY_CHECKLIST.md

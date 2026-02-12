@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
 import alertModal from '../utils/alert'
 import { Html5Qrcode } from 'html5-qrcode'
+import { API_URL } from '../config/api'
 
 // helper to set auth header if token present
 function setAuthHeader(){
@@ -26,7 +27,7 @@ export default function Organizer(){
       setIsLoggedIn(true)
       setUserRole(savedRole)
       setAuthHeader()
-      axios.get('http://localhost:4000/api/events').then(r=>setEvents(r.data)).catch(()=>setEvents([]))
+      axios.get('${API_URL}/api/events').then(r=>setEvents(r.data)).catch(()=>setEvents([]))
     }
   },[])
 
@@ -35,7 +36,7 @@ export default function Organizer(){
   },[selected])
 
   function fetchAttendees(eventId){
-    axios.get(`http://localhost:4000/api/registrations/${eventId}`)
+    axios.get(`${API_URL}/api/registrations/${eventId}`)
       .then(r=>setAttendees(r.data))
       .catch(err=>{
           if (err?.response?.status === 401 || err?.response?.status === 403) {
@@ -65,7 +66,7 @@ export default function Organizer(){
         try{
           const token = localStorage.getItem('token')
           const headers = token ? { Authorization: `Bearer ${token}` } : {}
-          const res = await axios.post('http://localhost:4000/api/verify', { ticketId }, { headers })
+          const res = await axios.post('${API_URL}/api/verify', { ticketId }, { headers })
           await alertModal('Checked-in: ' + res.data.ticket.id)
           fetchAttendees(selected.id)
         }catch(err){
@@ -94,7 +95,7 @@ export default function Organizer(){
     setIsLoggedIn(true)
     setUserRole(role)
     setAuthHeader()
-    axios.get('http://localhost:4000/api/events').then(r=>setEvents(r.data)).catch(()=>setEvents([]))
+    axios.get('${API_URL}/api/events').then(r=>setEvents(r.data)).catch(()=>setEvents([]))
   }
 
   function handleLogout(){
@@ -163,7 +164,7 @@ function Login({ onLogin }){
 
   async function doLogin(){
     try{
-      const res = await axios.post('http://localhost:4000/api/auth/login', { username, password })
+      const res = await axios.post('${API_URL}/api/auth/login', { username, password })
       const { token, role } = res.data
       
       if (role !== 'organizer' && role !== 'admin') {
@@ -187,3 +188,4 @@ function Login({ onLogin }){
     </div>
   )
 }
+

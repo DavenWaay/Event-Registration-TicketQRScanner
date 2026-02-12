@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import alertModal from '../utils/alert'
+import { API_URL } from '../config/api'
 
 export default function Register({ event, user, onDone, onCancel }){
   const [name, setName] = useState(user?.name || '')
@@ -30,7 +31,7 @@ export default function Register({ event, user, onDone, onCancel }){
     e.preventDefault();
     setLoading(true)
     try{
-      const res = await axios.post(`http://localhost:4000/api/registrations/${event.id}/register`, { name, email, company })
+      const res = await axios.post(`${API_URL}/api/registrations/${event.id}/register`, { name, email, company })
       setTicket(res.data.ticket)
     }catch(err){
       await alertModal(err?.response?.data?.message || 'Registration failed')
@@ -258,3 +259,4 @@ export default function Register({ event, user, onDone, onCancel }){
     </div>
   )
 }
+

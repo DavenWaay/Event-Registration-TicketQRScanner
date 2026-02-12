@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 export default function MonitorAttendeesSection() {
   const [events, setEvents] = useState([]);
@@ -10,14 +11,14 @@ export default function MonitorAttendeesSection() {
   const [filterStatus, setFilterStatus] = useState('all');
 
   useEffect(() => {
-    axios.get('http://localhost:4000/api/events')
+    axios.get('${API_URL}/api/events')
       .then(r => setEvents(r.data))
       .catch(() => setEvents([]));
   }, []);
 
   function viewAttendees(event) {
     setSelectedEvent(event);
-    axios.get(`http://localhost:4000/api/registrations/${event.id}`)
+    axios.get(`${API_URL}/api/registrations/${event.id}`)
       .then(r => setAttendees(r.data))
       .catch(() => setAttendees([]));
   }
@@ -193,3 +194,4 @@ export default function MonitorAttendeesSection() {
     </div>
   );
 }
+

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 export default function RegisterTicketPage({ onRegistered }) {
   const [events, setEvents] = useState([]);
@@ -10,7 +11,7 @@ export default function RegisterTicketPage({ onRegistered }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:4000/api/events')
+    axios.get('${API_URL}/api/events')
       .then(r => setEvents(r.data))
       .catch(() => setEvents([]));
   }, []);
@@ -29,7 +30,7 @@ export default function RegisterTicketPage({ onRegistered }) {
     setLoading(true);
     setError('');
     try {
-      await axios.post(`http://localhost:4000/api/registrations/${selectedEvent.id}/register`, form);
+      await axios.post(`${API_URL}/api/registrations/${selectedEvent.id}/register`, form);
       setStep(3);
     } catch (err) {
       setError(err?.response?.data?.message || 'Registration failed');
@@ -244,3 +245,4 @@ export default function RegisterTicketPage({ onRegistered }) {
 
   return null;
 }
+

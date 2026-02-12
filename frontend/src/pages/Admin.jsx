@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import alertModal from '../utils/alert'
+import { API_URL } from '../config/api'
 
 function setAuthHeader(){
   const token = localStorage.getItem('token')
@@ -30,7 +31,7 @@ export default function Admin(){
   async function fetchUsers(){
     setLoading(true)
     try{
-      const res = await axios.get('http://localhost:4000/api/admin/users')
+      const res = await axios.get('${API_URL}/api/admin/users')
       setUsers(res.data)
     }catch(err){
       if (err?.response?.status === 401 || err?.response?.status === 403) {
@@ -48,7 +49,7 @@ export default function Admin(){
   async function createUser(){
     if (!username || !password) return await alertModal('username and password required')
     try{
-      await axios.post('http://localhost:4000/api/admin/users', { username, password, role })
+      await axios.post('${API_URL}/api/admin/users', { username, password, role })
       setUsername(''); setPassword(''); setRole('organizer')
       fetchUsers()
     }catch(err){ await alertModal(err?.response?.data?.message || 'Create failed') }
@@ -56,14 +57,14 @@ export default function Admin(){
 
   async function toggleActive(u){
     try{
-      await axios.patch(`http://localhost:4000/api/admin/users/${u.id}`, { active: !u.active })
+      await axios.patch(`${API_URL}/api/admin/users/${u.id}`, { active: !u.active })
       fetchUsers()
     }catch(err){ await alertModal('Update failed') }
   }
 
   async function changeRole(u, newRole){
     try{
-      await axios.patch(`http://localhost:4000/api/admin/users/${u.id}`, { role: newRole })
+      await axios.patch(`${API_URL}/api/admin/users/${u.id}`, { role: newRole })
       fetchUsers()
     }catch(err){ await alertModal('Update failed') }
   }
@@ -141,7 +142,7 @@ function Login({ onLogin, requiredRole }){
 
   async function doLogin(){
     try{
-      const res = await axios.post('http://localhost:4000/api/auth/login', { username, password })
+      const res = await axios.post('${API_URL}/api/auth/login', { username, password })
       const { token, role } = res.data
       
       if (requiredRole && role !== requiredRole) {
@@ -163,3 +164,4 @@ function Login({ onLogin, requiredRole }){
     </div>
   )
 }
+

@@ -3,6 +3,7 @@ import axios from 'axios'
 import MonitorAttendeesSection from './MonitorAttendeesSection'
 import confirmModal from '../utils/confirm'
 import alertModal from '../utils/alert'
+import { API_URL } from '../config/api'
 
 function setAuthHeader(){
   const token = localStorage.getItem('token')
@@ -143,7 +144,7 @@ function EventsListSection(){
   useEffect(()=>{ fetchEvents() }, [])
 
   function fetchEvents(){
-    axios.get('http://localhost:4000/api/events')
+    axios.get('${API_URL}/api/events')
       .then(r=>setEvents(r.data))
       .catch(()=>setEvents([]))
   }
@@ -276,7 +277,7 @@ function EventDetailsModal({ event, onClose, initialEditing = false }){
 
   async function handleSave(){
     try{
-      await axios.put('http://localhost:4000/api/events/' + event.id, formData)
+      await axios.put(`${API_URL}/api/events/` + event.id, formData)
       await alertModal('Event updated')
       setEditing(false)
       onClose()
@@ -288,7 +289,7 @@ function EventDetailsModal({ event, onClose, initialEditing = false }){
   async function handleDelete(){
     if (!(await confirmModal('Delete this event? This cannot be undone.'))) return
     try{
-      await axios.delete('http://localhost:4000/api/events/' + event.id)
+      await axios.delete(`${API_URL}/api/events/` + event.id)
       await alertModal('Event deleted')
       onClose()
     }catch(err){
@@ -404,8 +405,8 @@ function MyTicketsSection(){
     try{
       setAuthHeader() // Set authorization header before making requests
       const [ticketsRes, eventsRes] = await Promise.all([
-        axios.get('http://localhost:4000/api/registrations/my-tickets'),
-        axios.get('http://localhost:4000/api/events')
+        axios.get('${API_URL}/api/registrations/my-tickets'),
+        axios.get('${API_URL}/api/events')
       ])
       setTickets(ticketsRes.data)
       setEvents(eventsRes.data)
@@ -486,7 +487,7 @@ function AdminTicketCard({ t, ev, fetchData }){
     try{
       const token = localStorage.getItem('token')
       if (token) axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      await axios.patch(`http://localhost:4000/api/registrations/${t.id}`, form)
+      await axios.patch(`${API_URL}/api/registrations/${t.id}`, form)
       await alertModal('Updated')
       setEditing(false)
       fetchData()
@@ -500,7 +501,7 @@ function AdminTicketCard({ t, ev, fetchData }){
     try{
       const token = localStorage.getItem('token')
       if (token) axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      await axios.delete(`http://localhost:4000/api/registrations/${t.id}`)
+      await axios.delete(`${API_URL}/api/registrations/${t.id}`)
       await alertModal('Registration cancelled')
       fetchData()
     }catch(err){
@@ -571,7 +572,7 @@ function OrganizerDashboardSection(){
   useEffect(()=>{ fetchEvents() }, [])
 
   function fetchEvents(){
-    axios.get('http://localhost:4000/api/events')
+    axios.get('${API_URL}/api/events')
       .then(r=>setEvents(r.data))
       .catch(()=>setEvents([]))
   }
@@ -675,7 +676,7 @@ function ManageUsersSection(){
 
   async function fetchUsers(){
     try{
-      const res = await axios.get('http://localhost:4000/api/admin/users')
+      const res = await axios.get('${API_URL}/api/admin/users')
       setUsers(res.data)
     }catch(err){
       await alertModal('Failed to load users')
@@ -685,7 +686,7 @@ function ManageUsersSection(){
   async function createUser(){
     if (!username || !password) return await alertModal('username and password required')
     try{
-      await axios.post('http://localhost:4000/api/admin/users', { username, password, role })
+      await axios.post('${API_URL}/api/admin/users', { username, password, role })
       setUsername(''); setPassword(''); setRole('organizer')
       fetchUsers()
     }catch(err){ await alertModal('Create failed') }
@@ -693,14 +694,14 @@ function ManageUsersSection(){
 
   async function toggleActive(u){
     try{
-      await axios.patch(`http://localhost:4000/api/admin/users/${u.id}`, { active: !u.active })
+      await axios.patch(`${API_URL}/api/admin/users/${u.id}`, { active: !u.active })
       fetchUsers()
     }catch(err){ await alertModal('Update failed') }
   }
 
   async function changeRole(u, newRole){
     try{
-      await axios.patch(`http://localhost:4000/api/admin/users/${u.id}`, { role: newRole })
+      await axios.patch(`${API_URL}/api/admin/users/${u.id}`, { role: newRole })
       fetchUsers()
     }catch(err){ await alertModal('Update failed') }
   }
@@ -841,10 +842,10 @@ function EventFormModal({ event, onClose }){
     }
     try{
       if (isEdit) {
-        await axios.put(`http://localhost:4000/api/events/${event.id}`, formData)
+        await axios.put(`${API_URL}/api/events/${event.id}`, formData)
         await alertModal('Event updated')
       } else {
-        await axios.post('http://localhost:4000/api/events', formData)
+        await axios.post('${API_URL}/api/events', formData)
         await alertModal('Event created')
       }
       onClose()
@@ -856,7 +857,7 @@ function EventFormModal({ event, onClose }){
   async function handleDelete(){
     if (!(await confirmModal('Delete this event? This cannot be undone.'))) return
     try{
-      await axios.delete(`http://localhost:4000/api/events/${event.id}`)
+      await axios.delete(`${API_URL}/api/events/${event.id}`)
       await alertModal('Event deleted')
       onClose()
     }catch(err){
@@ -1011,14 +1012,14 @@ function ReportsSection(){
   const [events, setEvents] = useState([])
 
   useEffect(()=>{
-    axios.get('http://localhost:4000/api/events')
+    axios.get('${API_URL}/api/events')
       .then(r=>setEvents(r.data))
       .catch(()=>setEvents([]))
   }, [])
 
   async function exportCSV(eventId){
     try{
-      const res = await axios.get(`http://localhost:4000/api/reports/${eventId}/export`, { responseType: 'blob' })
+      const res = await axios.get(`${API_URL}/api/reports/${eventId}/export`, { responseType: 'blob' })
       const url = window.URL.createObjectURL(new Blob([res.data]))
       const link = document.createElement('a')
       link.href = url
@@ -1033,7 +1034,7 @@ function ReportsSection(){
 
   async function exportPDF(eventId){
     try{
-      const res = await axios.get(`http://localhost:4000/api/reports/${eventId}/export-pdf`, { responseType: 'blob' })
+      const res = await axios.get(`${API_URL}/api/reports/${eventId}/export-pdf`, { responseType: 'blob' })
       const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
       const link = document.createElement('a')
       link.href = url
@@ -1132,7 +1133,7 @@ function AdminLogin({ onLogin }){
 
   async function doLogin(){
     try{
-      const res = await axios.post('http://localhost:4000/api/auth/login', { username, password })
+      const res = await axios.post('${API_URL}/api/auth/login', { username, password })
       const { token, role } = res.data
       
       if (role !== 'admin') {
@@ -1154,3 +1155,4 @@ function AdminLogin({ onLogin }){
     </div>
   )
 }
+

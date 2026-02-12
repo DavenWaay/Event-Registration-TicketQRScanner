@@ -3,6 +3,7 @@ import axios from 'axios'
 import alertModal from '../utils/alert'
 import bgImage from '../assets/bg.png'
 import iconImage from '../assets/icon.png'
+import { API_URL } from '../config/api'
 
 export default function Landing({ onLogin }){
   const [mode, setMode] = useState('signin') // 'signin' or 'signup'
@@ -135,7 +136,7 @@ function SignInForm({ onLogin }){
     e.preventDefault()
     setLoading(true)
     try{
-      const res = await axios.post('http://localhost:4000/api/auth/login', { email, password })
+      const res = await axios.post(`${API_URL}/api/auth/login`, { email, password })
       const { token, role, user } = res.data
       
       localStorage.setItem('token', token)
@@ -251,7 +252,7 @@ function SignUpForm({ onLogin, onSwitchToSignIn }){
     
     setLoading(true)
     try{
-      const res = await axios.post('http://localhost:4000/api/auth/signup', { 
+      const res = await axios.post(`${API_URL}/api/auth/signup`, { 
         name, email, company, password 
       })
       const { token, role, user } = res.data
@@ -420,3 +421,4 @@ function SignUpForm({ onLogin, onSwitchToSignIn }){
     </form>
   )
 }
+

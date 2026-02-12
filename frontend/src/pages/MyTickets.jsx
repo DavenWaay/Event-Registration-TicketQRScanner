@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import confirmModal from '../utils/confirm'
 import alertModal from '../utils/alert'
+import { API_URL } from '../config/api'
 
 export default function MyTickets(){
   const [tickets, setTickets] = useState([])
@@ -39,7 +40,7 @@ export default function MyTickets(){
       if (token) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
       }
-      const res = await axios.get('http://localhost:4000/api/registrations/my-tickets')
+      const res = await axios.get('${API_URL}/api/registrations/my-tickets')
       setTickets(res.data)
     }catch(err){
       console.error('Failed to fetch tickets:', err)
@@ -51,7 +52,7 @@ export default function MyTickets(){
 
   async function verify(ticketId){
     try{
-      const res = await axios.post('http://localhost:4000/api/verify', { ticketId })
+      const res = await axios.post('${API_URL}/api/verify', { ticketId })
       await alertModal('Checked-in: ' + res.data.ticket.id)
       fetchTickets() // Refresh to show updated status
     }catch(err){
@@ -99,7 +100,7 @@ function TicketCard({ t, fetchTickets }){
     try{
       const token = localStorage.getItem('token')
       if (token) axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      await axios.patch(`http://localhost:4000/api/registrations/${t.id}`, form)
+      await axios.patch(`${API_URL}/api/registrations/${t.id}`, form)
       await alertModal('Updated')
       setEditing(false)
       fetchTickets()
@@ -113,7 +114,7 @@ function TicketCard({ t, fetchTickets }){
     try{
       const token = localStorage.getItem('token')
       if (token) axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      await axios.delete(`http://localhost:4000/api/registrations/${t.id}`)
+      await axios.delete(`${API_URL}/api/registrations/${t.id}`)
       await alertModal('Registration cancelled')
       fetchTickets()
     }catch(err){
@@ -177,3 +178,4 @@ function TicketCard({ t, fetchTickets }){
     </div>
   )
 }
+
